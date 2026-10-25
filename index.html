@@ -25,31 +25,7 @@
 </script>
 </head>
 <body>
-<div class="ocean" aria-hidden="true">
-  <svg class="orca" id="orca" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <clipPath id="orcaBodyClip">
-        <path d="M38 64 C42 50 64 38 96 36 C132 33 162 42 172 56 C175 60 175 68 172 72 C162 84 132 92 96 90 C64 88 42 78 38 64 Z"/>
-      </clipPath>
-    </defs>
-    <g fill="#46596f">
-      <path d="M38 62 C30 57 22 54 16 53 C19 58 21 61 22 64 L38 65 Z"/>
-      <path d="M38 65 L22 64 C21 67 19 70 16 75 C22 74 30 71 38 65 Z"/>
-      <path d="M104 37 C106 29 110 21 114 15 C120 22 125 30 127 37 Z"/>
-      <path d="M38 64 C42 50 64 38 96 36 C132 33 162 42 172 56 C175 60 175 68 172 72 C162 84 132 92 96 90 C64 88 42 78 38 64 Z"/>
-    </g>
-    <g clip-path="url(#orcaBodyClip)">
-      <ellipse cx="106" cy="99" rx="92" ry="27" fill="#e8f0f8" opacity="0.55"/>
-    </g>
-    <ellipse cx="150" cy="58" rx="13" ry="6.4" transform="rotate(-16 150 58)" fill="#f6fafd" opacity="0.62"/>
-    <g id="orcaEyeScale" class="orca-eye-scale">
-      <g id="orcaEyeBlink" class="orca-eye-blink">
-        <circle cx="156" cy="59.5" r="2.7" fill="#080b10"/>
-        <circle cx="156.9" cy="58.6" r="0.8" fill="#ffffff" opacity="0.85"/>
-      </g>
-    </g>
-  </svg>
-</div>
+<canvas class="ocean" id="ocean" aria-hidden="true"></canvas>
 <a class="skip-link" href="#main">跳到正文</a>
 
 <header class="site-header">
@@ -255,6 +231,7 @@
 </footer>
 
 <script src="assets/js/main.js" defer></script>
+<script src="assets/js/orca-bits.js" defer></script>
 <script src="assets/js/ocean.js" defer></script>
 </body>
 </html>
