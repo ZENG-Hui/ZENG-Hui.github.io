@@ -216,14 +216,14 @@
         // 先加速蓄力：尾鳍以 1.4 倍速拍两下，再出发
         state.mode = 'windup';
         state.windT = 0;
-        state.windDur = 2 * Math.PI * 1.5 * 2 / (1.4 * (1.7 + state.speed / 26));
+        state.windDur = 2 * Math.PI * 1.5 * 2 / (2.1 * (1.7 + state.speed / 26));
         state.timer = 0;
       }
     } else if (state.mode === 'windup') {
       state.windT += dt;
-      var rate = 1.4 * (1.7 + state.speed / 26);
-      state.phase += dt * rate;                      // 尾鳍 1.4 倍速
-      state.x += state.speed * 0.30 * dt * state.dir; // 略微前冲，别像卡住
+      var rate = 2.1 * (1.7 + state.speed / 26);
+      state.phase += dt * rate;                      // 尾鳍 2.1 倍速（原 1.4 的 1.5 倍）
+      state.x += state.speed * 0.45 * dt * state.dir; // 前冲更多，配得上加速
       state.look = Math.max(0, state.look - dt * 2.5);
       if (state.windT >= state.windDur) {
         state.mode = 'out';
