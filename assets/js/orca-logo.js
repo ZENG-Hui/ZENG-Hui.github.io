@@ -145,9 +145,22 @@
   var PPU = 3.4;
 
   // 尾巴甩起来：振幅沿身体往后加大
-  function logoWave(s, phase) {
-    var t = s < 0 ? 0 : s > 1 ? 1 : s;
-    return 11 * t * t * Math.sin(2 * Math.PI * 1.15 * t - phase);
+  // 躯干刚性，尾巴绕尾柄摆，胸鳍小幅拍
+  function logoXform(x, y, phase) {
+    var bob = 1.4 * Math.sin(phase * 0.7);
+    // 尾摆：角度从腰部 0 渐变到尾梢最大 —— 是"弓"不是"折"
+    var w = (x - 0) / 70;
+    w = w < 0 ? 0 : w > 1 ? 1 : w;
+    var ang = 0.34 * Math.sin(phase) * w * w;
+    // 胸鳍：小幅拍动
+    var fw = clamp01((x + 10) / -34);
+    ang += 0.15 * Math.sin(phase * 1.5 + 0.6) * fw * clamp01((y - 12) / 26);
+    if (ang !== 0) {
+      var PX = 8, PY = 4;
+      var dx = x - PX, dy = y - PY, c = Math.cos(ang), s = Math.sin(ang);
+      return { x: PX + dx * c - dy * s, y: PY + dx * s + dy * c + bob };
+    }
+    return { x: x, y: y + bob };
   }
   var X0 = -108, Y0 = -86, XSPAN = 216, YSPAN = 172;
   var NEUTRAL = 0.9;
@@ -311,15 +324,8 @@
         var a = clamp01(b) * (0.55 + 0.45 * fade) * flick;
         if (a < 0.06) continue;
 
-        var sx, sy;
-        if (x < tailX) {
-          var dx = x - tailX, dy = yv;
-          sx = tailX + dx * cosB - dy * sinB;
-          sy = tailY + dx * sinB + dy * cosB;
-        } else {
-          sx = x;
-          sy = logoWave(s, phase) + yv;
-        }
+        var p = logoXform(x, yv, phase);
+        var sx = p.x, sy = p.y;
 
         var flip = Math.floor(time * 0.85 + hash(i, j, 13) * 5) % 2;
         out.push({ x: sx, y: sy, a: a, ch: flip ? 1 : 0, hot: b > 0.7 });
