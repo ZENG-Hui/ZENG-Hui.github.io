@@ -107,5 +107,5 @@ main,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .orca-eye-scale, .orca-eye-blink { transition: none; }
+  .ocean { opacity: 0.75; }
 }
