@@ -6,10 +6,10 @@
 
   // 身体侧影：钝头 + 后脑最厚 + 细尾柄。这三件事决定它是虎鲸而不是鱼。
   var ANCHORS = [
-    [0.000, 18.0], [0.050, 28.0], [0.120, 36.0], [0.200, 41.0],
-    [0.280, 41.0], [0.380, 39.5], [0.500, 37.0], [0.620, 33.0],
-    [0.720, 28.0], [0.820, 21.0], [0.900, 13.0], [0.960, 7.0],
-    [1.000, 4.0]
+    [0.000, 20.0], [0.050, 30.0], [0.120, 38.0], [0.200, 43.0],
+    [0.300, 44.0], [0.400, 42.5], [0.500, 40.0], [0.600, 36.0],
+    [0.680, 31.0], [0.760, 24.0], [0.840, 16.5], [0.900, 11.0],
+    [0.950, 7.5], [1.000, 5.5]
   ];
 
   var LUT_N = 256;
@@ -90,11 +90,11 @@
     ctx.rotate(tailBeat(phase));
     ctx.beginPath();
     ctx.rotate(0.2);
-    ctx.moveTo(8, -2);
-    ctx.bezierCurveTo(-6, -13, -28, -26, -50, -27);
-    ctx.bezierCurveTo(-43, -15, -37, -5, -35, 0);
-    ctx.bezierCurveTo(-40, 9, -46, 21, -52, 31);
-    ctx.bezierCurveTo(-29, 24, -7, 12, 8, 3);
+    ctx.moveTo(20, -9);
+    ctx.bezierCurveTo(0, -22, -26, -35, -50, -33);
+    ctx.bezierCurveTo(-44, -18, -36, -6, -30, 1);
+    ctx.bezierCurveTo(-38, 8, -44, 21, -48, 31);
+    ctx.bezierCurveTo(-28, 26, -4, 14, 20, 8);
     ctx.closePath();
     ctx.restore();
   }
@@ -105,10 +105,10 @@
     ctx.translate(X(0.40), centre(0.40, phase) - halfWidth(0.40) * 0.84);
     ctx.rotate(Math.sin(phase - 0.4) * 2.2 * Math.PI / 180);
     ctx.beginPath();
-    ctx.moveTo(14, 4);
-    ctx.bezierCurveTo(12, -14, 2, -34, -12, -46);
-    ctx.bezierCurveTo(-18, -47, -20, -40, -19, -30);
-    ctx.bezierCurveTo(-17, -14, -13, -3, -11, 4);
+    ctx.moveTo(17, 4);
+    ctx.bezierCurveTo(14, -12, 4, -26, -9, -34);
+    ctx.bezierCurveTo(-15, -36, -18, -30, -18, -24);
+    ctx.bezierCurveTo(-17, -12, -14, -3, -13, 4);
     ctx.closePath();
     ctx.restore();
   }
@@ -201,15 +201,16 @@
 
   // 白肚皮的分界线：从下巴往上抬，到身体中段变高
   function bellyLine(s, w) {
-    var t = clamp01((s - 0.16) / 0.44);
-    var k = 0.46 - 0.26 * (t * t * (3 - 2 * t));
+    // 白斑是一枚透镜形：下巴起头、中段最宽、尾柄前收成尖
+    var t = clamp01((s - 0.05) / 0.68);
+    var k = 0.62 - 0.30 * Math.sin(Math.PI * t) + 0.9 * t * t * t;
     return k * w;
   }
 
   function inWhite(s, yv, w, look) {
     if (inPatch(s, yv, look)) return true;                 // 眼斑
     if (s < 0.10 && yv > 0.52 * w) return true;            // 下巴
-    if (s > 0.16 && yv > bellyLine(s, w)) return true;     // 腹部
+    if (s > 0.16 && s < 0.88 && yv > bellyLine(s, w)) return true;  // 腹部
     return false;
   }
 
@@ -223,9 +224,9 @@
   // 眼斑：斜着往上后方拉长的一枚白斑，虎鲸的第二张名片
   function inPatch(s, yv, look) {
     var s0 = 0.092 + look * 0.012;
-    var y0 = -0.46 * halfWidth(s0);
-    var rs = 0.13 + look * 0.014;
-    var ry = 13.0 + look * 2.0;
+    var y0 = -0.30 * halfWidth(s0);
+    var rs = 0.095 + look * 0.010;
+    var ry = 8.5 + look * 1.5;
     var tilt = y0 - (s - s0) * 62;
     var dx = (s - s0) / rs, dy = (yv - tilt) / ry;
     return dx * dx + dy * dy < 1;
@@ -254,14 +255,14 @@
         var w = halfWidth(s < 0 ? 0 : s > 1 ? 1 : s);
 
         // 三种料：白（肚皮+眼斑）、蓝（背）、黑（背鳍+尾鳍）
-        var edge = Math.exp(-d / 1.5);
+        // 内部给固定值，只有最外一圈提亮 —— 斑块才会是"面"而不是"边"
+        var rim = d < 1.8 ? 1 - d / 1.8 : 0;
         var black = isBlack(s, yv, w);
         var white = !black && inWhite(s, yv, w, look);
         var b;
-        if (black) b = 0.18 + 0.52 * edge;
-        else if (white) b = Math.max(0.94, 0.55 + 0.5 * edge);
-        else b = Math.max(0.70, 0.60 + 0.40 * edge);
-        if (d < 1.0 && !black) b = Math.max(b, 0.98);
+        if (black) b = 0.26 + 0.5 * rim;
+        else if (white) b = 0.96 + 0.04 * rim;
+        else b = 0.60 + 0.40 * rim;
 
         if (scan >= 0 && s >= 0 && s <= 1) {
           var ds = Math.abs(s - scan);
@@ -269,9 +270,9 @@
         }
 
         // 嘴：一条挖空的弧线，从吻端向后微微上扬
-        if (s > -0.03 && s < 0.26) {
-          var mouthY = 5.5 - 26 * s;
-          if (Math.abs(yv - mouthY) < 2.2) continue;
+        if (s > -0.03 && s < 0.17) {
+          var mouthY = 6.0 - 46 * s;
+          if (Math.abs(yv - mouthY) < 2.0) continue;
         }
 
         // 瞳孔：白斑里挖掉一小块，脸才有表情
@@ -280,12 +281,12 @@
           if (dex * dex + dey * dey < 3.4 * 3.4) continue;
         }
 
-        var keep = d < 1.2 ? 0.55 + 0.45 * (d / 1.2) : 1;
+        var keep = d < 0.7 ? 0.78 : 1;
         if (hash(i, j, 2) > keep) continue;
         if (hash(i, j, 9) > appear) continue;
 
         var fade = clamp01(d / 1.2);
-        var flick = 0.76 + 0.24 * Math.sin(time * 2.0 + hash(i, j, 3) * 9.4);
+        var flick = 0.88 + 0.12 * Math.sin(time * 2.0 + hash(i, j, 3) * 9.4);
         var a = clamp01(b) * (0.55 + 0.45 * fade) * flick;
         if (a < 0.06) continue;
 
