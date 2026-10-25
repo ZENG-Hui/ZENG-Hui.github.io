@@ -24,7 +24,7 @@
     fadeIn: 1.8,
     fadeOut: 1.8,
     inSpan: 11.4,       // 从深海游上来（0.7 倍速 => 8/0.7）
-    outSpan: 11.4,      // 游回深海（同上）
+    outSpan: 14.25,     // 游回深海（11.4 / 0.8）
     glanceEvery: 14,
     glanceHold: 3.4,
     depthFar: 3.0,      // 游到头时离镜头远 3 倍（最小 1/3）
@@ -227,7 +227,7 @@
       state.appear = po > 1 - CFG.fadeOut / CFG.outSpan
         ? Math.max(0, (1 - po) / (CFG.fadeOut / CFG.outSpan))
         : 1;
-      state.phase += dt * (2.52 + 2.04 * eo);                  // 离场同上（x1.2）
+      state.phase += dt * (2.016 + 1.632 * eo);                // 离场尾鳍再慢 0.8 倍
       if (po >= 1) {
         if (state.willReturn) {
           // 原地掉头，沿同一条视线游回来
