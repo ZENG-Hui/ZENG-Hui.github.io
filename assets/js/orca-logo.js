@@ -160,16 +160,16 @@
       x += (fin || 0) * 2.0 * amp;
     }
 
-    // 尾：绕尾柄（约 64,-12）整块摆，不再把后半身拧长
-    var tdx = x - 64, tdy = y + 12;
+    // 尾：根部摆动 + 过渡带拉伸，折中参数（相邻字的位移差 < 0.5 格，看不出断）
+    var PX = 62, PY = -12;
+    var tdx = x - PX, tdy = y - PY;
     var tr = Math.sqrt(tdx * tdx + tdy * tdy);
-    var tt = clamp01((tr - 7) / 13);
+    var tt = clamp01((tr - 4) / 30);
     tt = tt * tt * (3 - 2 * tt);
-    var side = clamp01((-13 - y) / 7);
-    var xgate = clamp01((x - 24) / 10);   // 只放尾巴那一段，别把背脊也拽起来
-    var ang = 0.30 * Math.sin(phase / 1.5) * tt * side * xgate;
+    var side = clamp01((-4 - y) / 24);
+    var xgate = clamp01((x - 20) / 34);
+    var ang = 0.22 * Math.sin(phase / 1.5) * tt * side * xgate;
     if (ang !== 0) {
-      var PX = 64, PY = -12;
       var ddx = x - PX, ddy = y - PY, c = Math.cos(ang), s = Math.sin(ang);
       return { x: PX + ddx * c - ddy * s, y: PY + ddx * s + ddy * c + bob };
     }
