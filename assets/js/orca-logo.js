@@ -151,7 +151,7 @@
     // 只动尾巴：角度从腰部 0 渐变到尾梢最大
     var w = (x - 4) / 66;
     w = w < 0 ? 0 : w > 1 ? 1 : w;
-    var ang = 0.34 * Math.sin(phase) * w * w;
+    var ang = 0.24 * Math.sin(phase / 1.5) * w * w;
     if (ang !== 0) {
       var PX = 8, PY = 4;
       var dx = x - PX, dy = y - PY, c = Math.cos(ang), s = Math.sin(ang);
