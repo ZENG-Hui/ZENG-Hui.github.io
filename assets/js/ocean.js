@@ -13,9 +13,9 @@
 
   var CFG = {
     cell: 4.2,          // 身体坐标里的格子边长
-    lenMin: 280,
-    lenMax: 520,
-    lenRatio: 0.32,
+    lenMin: 300,
+    lenMax: 560,
+    lenRatio: 0.34,
     swim: 13,           // px/s
     lifeMin: 16,
     lifeMax: 28,
