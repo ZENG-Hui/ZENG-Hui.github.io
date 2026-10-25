@@ -12,7 +12,7 @@
   if (!ctx) return;
 
   var CFG = {
-    cell: 4.2,          // 身体坐标里的格子边长
+    cell: 4.0,          // 身体坐标里的格子边长
     lenMin: 300,
     lenMax: 560,
     lenRatio: 0.34,

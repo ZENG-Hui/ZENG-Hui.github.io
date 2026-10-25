@@ -6,10 +6,10 @@
 
   // 身体侧影：钝头 + 后脑最厚 + 细尾柄。这三件事决定它是虎鲸而不是鱼。
   var ANCHORS = [
-    [0.000, 7.6], [0.018, 11.9], [0.045, 16.4], [0.085, 20.7],
-    [0.135, 24.6], [0.195, 27.4], [0.265, 29.2], [0.345, 29.4],
-    [0.425, 28.3], [0.515, 25.9], [0.615, 22.0], [0.715, 17.3],
-    [0.805, 11.9], [0.875, 7.8], [0.940, 4.8], [1.000, 3.0]
+    [0.000, 18.0], [0.050, 28.0], [0.120, 36.0], [0.200, 41.0],
+    [0.280, 41.0], [0.380, 39.5], [0.500, 37.0], [0.620, 33.0],
+    [0.720, 28.0], [0.820, 21.0], [0.900, 13.0], [0.960, 7.0],
+    [1.000, 4.0]
   ];
 
   var LUT_N = 256;
@@ -40,12 +40,18 @@
   function X(s) { return 100 - 200 * s; }
 
   function waveAmp(s) {
-    var sc = s > 1 ? 1 : s;
+    var sc = s < 0 ? 0 : s > 1 ? 1 : s;
     return 0.5 + 8.4 * Math.pow(sc, 2.1);
   }
 
   function centre(s, phase) {
-    return waveAmp(s) * Math.sin(Math.PI * 2 * 1.05 * s - phase);
+    return waveAmp(s) * Math.sin(Math.PI * 2 * 1.05 * s - phase) + headDrop(s);
+  }
+
+  // 吻端往下垂一点，脸才立得起来
+  function headDrop(s) {
+    var t = clamp01((0.13 - s) / 0.13);
+    return 8 * t * t;
   }
 
   function tailBeat(phase) {
@@ -67,7 +73,7 @@
     var n = 56, top = [], bottom = [], i, s, x, cy, w;
     for (i = 0; i <= n; i++) {
       s = i / n; x = X(s); cy = centre(s, phase); w = halfWidth(s);
-      top.push([x, cy - w]); bottom.push([x, cy + w]);
+      top.push([x, cy - w * 0.88]); bottom.push([x, cy + w * 1.12]);
     }
     ctx.beginPath();
     ctx.moveTo(top[0][0], top[0][1]);
@@ -83,23 +89,26 @@
     ctx.translate(X(1), centre(1, phase));
     ctx.rotate(tailBeat(phase));
     ctx.beginPath();
-    ctx.moveTo(5, 0);
-    ctx.bezierCurveTo(-10, -5, -30, -11, -47, -8.5);
-    ctx.bezierCurveTo(-36, -3.5, -30, -1, -27, 0.4);
-    ctx.bezierCurveTo(-30, 1.8, -36, 5, -47, 10);
-    ctx.bezierCurveTo(-30, 13, -10, 6, 5, 1.6);
+    ctx.rotate(0.2);
+    ctx.moveTo(8, -2);
+    ctx.bezierCurveTo(-6, -13, -28, -26, -50, -27);
+    ctx.bezierCurveTo(-43, -15, -37, -5, -35, 0);
+    ctx.bezierCurveTo(-40, 9, -46, 21, -52, 31);
+    ctx.bezierCurveTo(-29, 24, -7, 12, 8, 3);
     ctx.closePath();
     ctx.restore();
   }
 
   function finPath(ctx, phase) {
     ctx.save();
-    ctx.translate(X(0.42), centre(0.42, phase) - halfWidth(0.42) * 0.86);
+    // 小三角，尖往后弯
+    ctx.translate(X(0.40), centre(0.40, phase) - halfWidth(0.40) * 0.84);
     ctx.rotate(Math.sin(phase - 0.4) * 2.2 * Math.PI / 180);
     ctx.beginPath();
-    ctx.moveTo(17, 3);
-    ctx.bezierCurveTo(16, -10, 8, -27, -2, -37);
-    ctx.bezierCurveTo(-7, -27, -14, -12, -17, 3);
+    ctx.moveTo(14, 4);
+    ctx.bezierCurveTo(12, -14, 2, -34, -12, -46);
+    ctx.bezierCurveTo(-18, -47, -20, -40, -19, -30);
+    ctx.bezierCurveTo(-17, -14, -13, -3, -11, 4);
     ctx.closePath();
     ctx.restore();
   }
@@ -107,12 +116,12 @@
   function flipperPath(ctx, phase) {
     ctx.save();
     // 胸鳍长在头后面，不是肚皮中间 —— 这一条最容易被看成"鱼"。
-    ctx.translate(X(0.31), centre(0.31, phase) + halfWidth(0.31) * 0.86);
-    ctx.rotate((-35 + Math.sin(phase * 0.9 + 1.2) * 6) * Math.PI / 180);
+    ctx.translate(X(0.28), centre(0.28, phase) + halfWidth(0.28) * 0.88);
+    ctx.rotate((-38 + Math.sin(phase * 0.9 + 1.2) * 6) * Math.PI / 180);
     ctx.beginPath();
-    ctx.moveTo(2, -3);
-    ctx.bezierCurveTo(-6, 2, -16, 7, -26, 8);
-    ctx.bezierCurveTo(-23, 0, -14, -6, -6, -8);
+    ctx.moveTo(4, -7);
+    ctx.bezierCurveTo(-9, 1, -23, 10, -35, 12);
+    ctx.bezierCurveTo(-29, 3, -17, -7, -9, -12);
     ctx.closePath();
     ctx.restore();
   }
@@ -120,7 +129,7 @@
   // ---------- 掩膜 + 距离场 ----------
 
   var PPU = 2.8;
-  var X0 = -152, Y0 = -80, XSPAN = 282, YSPAN = 142;
+  var X0 = -178, Y0 = -110, XSPAN = 314, YSPAN = 200;
   var NEUTRAL = 0.9;
 
   function buildMask(makeCanvas) {
@@ -188,14 +197,35 @@
 
   // ---------- 字 ----------
 
-  var X_LEFT = -146, X_RIGHT = 126;
+  var X_LEFT = -172, X_RIGHT = 126;
+
+  // 白肚皮的分界线：从下巴往上抬，到身体中段变高
+  function bellyLine(s, w) {
+    var t = clamp01((s - 0.16) / 0.44);
+    var k = 0.46 - 0.26 * (t * t * (3 - 2 * t));
+    return k * w;
+  }
+
+  function inWhite(s, yv, w, look) {
+    if (inPatch(s, yv, look)) return true;                 // 眼斑
+    if (s < 0.10 && yv > 0.52 * w) return true;            // 下巴
+    if (s > 0.16 && yv > bellyLine(s, w)) return true;     // 腹部
+    return false;
+  }
+
+  // 背鳍和尾鳍是黑的
+  function isBlack(s, yv, w) {
+    if (s > 1.02) return true;                                    // 尾鳍
+    if (s > 0.30 && s < 0.56 && yv < -0.88 * w - 3) return true;  // 背鳍
+    return false;
+  }
 
   // 眼斑：斜着往上后方拉长的一枚白斑，虎鲸的第二张名片
   function inPatch(s, yv, look) {
     var s0 = 0.092 + look * 0.012;
-    var y0 = -0.34 * halfWidth(s0);
-    var rs = 0.056 + look * 0.012;
-    var ry = 5.8 + look * 1.5;
+    var y0 = -0.46 * halfWidth(s0);
+    var rs = 0.13 + look * 0.014;
+    var ry = 13.0 + look * 2.0;
     var tilt = y0 - (s - s0) * 62;
     var dx = (s - s0) / rs, dy = (yv - tilt) / ry;
     return dx * dx + dy * dy < 1;
@@ -208,7 +238,7 @@
     var cell = st.cell;
 
     var cols = Math.round((X_RIGHT - X_LEFT) / cell);
-    var rows = Math.round(132 / cell);
+    var rows = Math.round(200 / cell);
     var beat = tailBeat(phase), cosB = Math.cos(beat), sinB = Math.sin(beat);
     var tailX = X(1), tailY = centre(1, phase);
     var out = [];
@@ -223,18 +253,34 @@
         var s = (100 - x) / 200;
         var w = halfWidth(s < 0 ? 0 : s > 1 ? 1 : s);
 
-        // 轮廓线最亮：形状靠这一圈才认得出
-        var b = 0.52 + 0.48 * Math.exp(-d / 1.9);
-        if (d < 0.9) b = Math.max(b, 0.96);
-        if (s <= 1 && s >= 0 && yv > 0.16 * w) b = Math.max(b, 0.9 + 0.12 * Math.exp(-d / 2.0));
-        if (s <= 1 && s >= 0 && inPatch(s, yv, look)) b = Math.max(b, 1.0);
+        // 三种料：白（肚皮+眼斑）、蓝（背）、黑（背鳍+尾鳍）
+        var edge = Math.exp(-d / 1.5);
+        var black = isBlack(s, yv, w);
+        var white = !black && inWhite(s, yv, w, look);
+        var b;
+        if (black) b = 0.18 + 0.52 * edge;
+        else if (white) b = Math.max(0.94, 0.55 + 0.5 * edge);
+        else b = Math.max(0.70, 0.60 + 0.40 * edge);
+        if (d < 1.0 && !black) b = Math.max(b, 0.98);
 
         if (scan >= 0 && s >= 0 && s <= 1) {
           var ds = Math.abs(s - scan);
           if (ds < 0.07) b += 0.42 * (1 - ds / 0.07);
         }
 
-        var keep = d < 2.4 ? 0.35 + 0.65 * (d / 2.4) : 1;
+        // 嘴：一条挖空的弧线，从吻端向后微微上扬
+        if (s > -0.03 && s < 0.26) {
+          var mouthY = 5.5 - 26 * s;
+          if (Math.abs(yv - mouthY) < 2.2) continue;
+        }
+
+        // 瞳孔：白斑里挖掉一小块，脸才有表情
+        if (s > 0.05 && s < 0.16 && yv < 0.1 * w) {
+          var dex = (s - 0.098) * 200, dey = yv + 0.30 * w;
+          if (dex * dex + dey * dey < 3.4 * 3.4) continue;
+        }
+
+        var keep = d < 1.2 ? 0.55 + 0.45 * (d / 1.2) : 1;
         if (hash(i, j, 2) > keep) continue;
         if (hash(i, j, 9) > appear) continue;
 
