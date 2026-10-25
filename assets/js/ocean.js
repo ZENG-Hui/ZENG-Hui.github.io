@@ -21,8 +21,10 @@
     lifeMax: 38,
     gapMin: 4,
     gapMax: 10,
-    fadeIn: 2.2,
-    fadeOut: 2.4,
+    fadeIn: 1.8,
+    fadeOut: 1.8,
+    inSpan: 8.0,        // 从深海游上来
+    outSpan: 8.0,       // 游回深海
     glanceEvery: 14,
     glanceHold: 3.4,
     depthFar: 3.0,      // 游到头时离镜头远 3 倍（最小 1/3）
@@ -65,6 +67,8 @@
     yTimer: 0,
     zoom: 1,
     yOff: 0,
+    inT: 0,
+    outT: 0,
     turnTimer: 10,
     turnPhase: 0,
     flipped: false,
@@ -82,6 +86,24 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     len = Math.max(CFG.lenMin, Math.min(CFG.lenMax, vw * CFG.lenRatio));
     scale = len / 200;
+  }
+
+  function anchor() {
+    state.p0x = state.x;
+    state.p0y = state.y;
+    var ahead = vw * 0.46;
+    state.vpX = state.dir > 0
+      ? Math.min(vw * 0.94, state.p0x + ahead)
+      : Math.max(vw * 0.06, state.p0x - ahead);
+    state.vpY = vh * 0.17;
+  }
+
+  // 位置和大小同时由一个深度倍数 k 决定，三者永远自洽
+  function setDepth(k) {
+    state.zoom = 1 / k;
+    state.x = state.vpX + (state.p0x - state.vpX) / k;
+    state.y = state.vpY + (state.p0y - state.vpY) / k;
+    state.yOff = 0;
   }
 
   function place() {
@@ -104,8 +126,11 @@
 
   function restart() {
     place();
+    anchor();
     state.mode = 'in';
     state.appear = 0;
+    state.inT = 0;
+    state.outT = 0;
     state.timer = 0;
     state.look = 0;
     state.glanceTimer = CFG.glanceEvery * (0.6 + Math.random() * 0.8);
@@ -129,10 +154,7 @@
 
   function step(dt) {
     state.time += dt;
-    if (state.mode !== 'turn') {
-      if (state.zoom < 1) state.zoom = Math.min(1, state.zoom + dt * 0.35);
-      state.yOff += (0 - state.yOff) * Math.min(1, dt * 1.5);
-    }
+    if (state.mode === 'swim' || state.mode === 'off') state.yOff = 0;
 
     if (state.mode === 'off') {
       state.timer -= dt;
@@ -141,10 +163,16 @@
     }
 
     if (state.mode === 'in') {
-      state.appear = Math.min(1, state.appear + dt / CFG.fadeIn);
-      state.phase += dt * 0.9;
-      if (state.appear >= 1) {
+      state.inT += dt;
+      var pi = Math.min(1, state.inT / CFG.inSpan);
+      var ei = pi * pi * (3 - 2 * pi);
+      setDepth(CFG.depthFar + (1 - CFG.depthFar) * ei);        // 深 -> 近
+      state.appear = Math.min(1, state.inT / CFG.fadeIn);
+      state.phase += dt * (2.9 - 1.1 * ei);                    // 远处尾鳍拍得快
+      if (pi >= 1) {
         state.mode = 'swim';
+        state.appear = 1;
+        state.zoom = 1;
         state.timer = CFG.lifeMin + Math.random() * (CFG.lifeMax - CFG.lifeMin);
       }
     } else if (state.mode === 'swim') {
@@ -186,20 +214,16 @@
         state.mode = 'turn';
         state.turnPhase = 0;
         state.flipped = false;
-        // 远点：沿游动方向远处、接近地平线；起点就是当前位置
-        state.p0x = state.x;
-        state.p0y = state.y;
-        var ahead = vw * 0.46;
-        state.vpX = state.dir > 0
-          ? Math.min(vw * 0.94, state.x + ahead)
-          : Math.max(vw * 0.06, state.x - ahead);
-        state.vpY = vh * 0.17;
+        anchor();
       }
 
       var edge = state.dir > 0 ? (state.x > vw - 90 * scale) : (state.x < 90 * scale);
       if (state.timer <= 0 || edge) {
         state.mode = 'out';
+        state.outT = 0;
+        state.appear = 1;
         state.timer = 0;
+        anchor();
       }
     } else if (state.mode === 'turn') {
       state.turnPhase += dt;
@@ -222,11 +246,7 @@
         state.dir = -state.dir;
         state.flipped = true;
       }
-      // 透视投影：位置和大小由同一个 k 决定，所以平移与缩放必然同步
-      var k = depth;
-      state.x = state.vpX + (state.p0x - state.vpX) / k;
-      state.y = state.vpY + (state.p0y - state.vpY) / k;
-      state.yOff = 0;
+      setDepth(depth);   // 位置和大小由同一个深度决定
 
       state.phase += dt * (2.1 + 1.7 * prog);   // 游向远处时尾鳍加快
       state.look = Math.max(0, state.look - dt * 2.5);
@@ -236,9 +256,15 @@
         state.turnTimer = 11 + Math.random() * 9;
       }
     } else if (state.mode === 'out') {
-      state.appear = Math.max(0, state.appear - dt / CFG.fadeOut);
-      state.phase += dt * 1.1;
-      if (state.appear <= 0) {
+      state.outT += dt;
+      var po = Math.min(1, state.outT / CFG.outSpan);
+      var eo = po * po * (3 - 2 * po);
+      setDepth(1 + (CFG.depthFar - 1) * eo);                   // 近 -> 深
+      state.appear = po > 1 - CFG.fadeOut / CFG.outSpan
+        ? Math.max(0, (1 - po) / (CFG.fadeOut / CFG.outSpan))
+        : 1;
+      state.phase += dt * (2.1 + 1.7 * eo);
+      if (po >= 1) {
         state.mode = 'off';
         state.timer = CFG.gapMin + Math.random() * (CFG.gapMax - CFG.gapMin);
       }
