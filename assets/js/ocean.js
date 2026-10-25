@@ -24,7 +24,9 @@
     fadeIn: 2.2,
     fadeOut: 2.4,
     glanceEvery: 14,
-    glanceHold: 3.4
+    glanceHold: 3.4,
+    zoomFar: 0.45,      // 游远时缩到多小
+    turnSpan: 5.4       // 游远 -> 掉头 -> 回来 的总时长
   };
 
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -59,6 +61,11 @@
     vy: 0,
     yTarget: 0,
     yTimer: 0,
+    zoom: 1,
+    zoomTo: 1,
+    turnTimer: 10,
+    turnPhase: 0,
+    flipped: false,
     seed: Math.random() * 6.283
   };
 
@@ -120,6 +127,9 @@
 
   function step(dt) {
     state.time += dt;
+    if (state.mode !== 'off') {
+      state.zoom += (state.zoomTo - state.zoom) * Math.min(1, dt * 1.5);
+    }
 
     if (state.mode === 'off') {
       state.timer -= dt;
@@ -168,10 +178,37 @@
       state.fin += (finTarget - state.fin) * Math.min(1, dt * 2.2);
       if (Math.random() < dt * 6 && state.appear > 0.7) spawnTrail();
 
+      state.turnTimer -= dt;
+      if (state.turnTimer <= 0 && state.zoom < 1.02) {
+        state.mode = 'turn';
+        state.turnPhase = 0;
+        state.flipped = false;
+      }
+
       var edge = state.dir > 0 ? (state.x > vw - 90 * scale) : (state.x < 90 * scale);
       if (state.timer <= 0 || edge) {
         state.mode = 'out';
         state.timer = 0;
+      }
+    } else if (state.mode === 'turn') {
+      state.turnPhase += dt;
+      var T = CFG.turnSpan;
+      var p = Math.min(1, state.turnPhase / T);
+      if (p < 0.40) {
+        state.zoomTo = CFG.zoomFar;
+      } else if (p < 0.52) {
+        if (!state.flipped) { state.dir = -state.dir; state.flipped = true; }
+        state.zoomTo = CFG.zoomFar;
+      } else {
+        state.zoomTo = 1;
+      }
+      state.x += state.speed * 0.30 * dt * state.dir;
+      state.phase += dt * (1.2 + state.speed / 40);
+      state.look = Math.max(0, state.look - dt * 2.5);
+      if (p >= 1) {
+        state.mode = 'swim';
+        state.zoomTo = 1;
+        state.turnTimer = 9 + Math.random() * 11;
       }
     } else if (state.mode === 'out') {
       state.appear = Math.max(0, state.appear - dt / CFG.fadeOut);
@@ -199,12 +236,13 @@
     orca.render(ctx, {
       x: state.x,
       y: state.y,
-      scale: scale,
+      scale: scale * state.zoom,
       cell: CFG.cell,
       phase: state.phase,
       look: state.look,
       fin: state.fin,
       dir: state.dir,
+      zoom: state.zoom,
       blink: state.blink,
       appear: state.appear,
       time: state.time,

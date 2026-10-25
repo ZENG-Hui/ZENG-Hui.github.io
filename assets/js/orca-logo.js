@@ -409,7 +409,7 @@
     var atlas = null, atlasPx = 0, atlasCool = null, atlasWarm = null;
 
     function ensureAtlas(px) {
-      if (atlas && Math.abs(px - atlasPx) < 0.5) return;
+      if (atlas && px / atlasPx > 0.86 && px / atlasPx < 1.16) return;   // 缩放时别每帧重烘焙
       atlasPx = px;
       atlasCool = makeAtlas(makeCanvas, px);
       atlasWarm = makeAtlas(makeCanvas, px);
@@ -441,12 +441,13 @@
       ctx.scale(st.scale, st.scale);
       var zoom = 1 + st.look * 0.03;   // 看你一眼=整体凑近一点，别横向压扁
       ctx.scale(zoom, zoom);
+      var haze = 0.55 + 0.45 * Math.min(1, st.zoom === undefined ? 1 : st.zoom);   // 远了淡一点
 
       var i, g;
       for (i = 0; i < glyphs.length; i++) {
         g = glyphs[i];
         if (g.hot) continue;
-        ctx.globalAlpha = g.a;
+        ctx.globalAlpha = g.a * haze;
         ctx.drawImage(atlasCool[g.ch],
           g.x - (gw / 2) / st.scale, g.y - (gh / 2) / st.scale,
           gw / st.scale, gh / st.scale);
@@ -454,7 +455,7 @@
       for (i = 0; i < glyphs.length; i++) {
         g = glyphs[i];
         if (!g.hot) continue;
-        ctx.globalAlpha = g.a;
+        ctx.globalAlpha = g.a * haze;
         ctx.drawImage(atlasWarm[g.ch],
           g.x - (gw / 2) / st.scale, g.y - (gh / 2) / st.scale,
           gw / st.scale, gh / st.scale);
@@ -479,7 +480,7 @@
       if (st.trail) {
         for (i = 0; i < st.trail.length; i++) {
           var t = st.trail[i];
-          ctx.globalAlpha = t.a;
+          ctx.globalAlpha = t.a * haze;
           ctx.drawImage(atlasCool[t.ch],
             t.x - (gw / 2) / st.scale, t.y - (gh / 2) / st.scale,
             gw / st.scale, gh / st.scale);
