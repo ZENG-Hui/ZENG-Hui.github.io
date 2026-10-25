@@ -28,8 +28,6 @@
     glanceEvery: 14,
     glanceHold: 3.4,
     depthFar: 3.0,      // 游到头时离镜头远 3 倍（最小 1/3）
-    diveSpan: 13.0,     // 去程秒数（深度线性推进，大小按 1/深度 掉）
-    holdSpan: 1.4,      // 在远处待一下掉头
   };
 
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
