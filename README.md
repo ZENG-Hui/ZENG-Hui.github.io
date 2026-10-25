@@ -85,6 +85,25 @@ size(k) = 1 / k              // 视角大小，k 从 1 到 3
 位置和大小由同一个 `k` 驱动，所以平移速度和缩放速度不可能失衡——它们本来就是同一个量的两种表现。
 浮出和游走时远点在身后或身前由 `anchor(behind)` 决定，保证鲸鱼**头始终朝前**。
 
+
+## 离线渲染工具（`tools/lab`）
+
+不想开浏览器就能看效果、也能在没有网络的地方验证行为。跑在 node 里，用的是真的
+`assets/js/orca-logo.js` 和 `ocean.js`，不是另写一份。
+
+    cd tools/lab
+    npm install            # 只依赖 @napi-rs/canvas
+    node tail-phases.mjs   # 尾鳍相位对照 + 相邻字位移差（判断会不会断裂）
+    node fin-frames.mjs    # 胸鳍上摆 / 平 / 下摆
+    node headings.mjs      # 朝向左右
+    node lifecycle.mjs     # 浮起 → 巡游 → 蓄力 → 游远的连拍
+    node flow-stats.mjs 20000   # 长跑统计：掉头/消失比例、蓄力拍几下、朝向是否正确
+
+图片输出到 `tools/lab/out/`（已 gitignore）。
+
+`tail-phases.mjs` 末尾会打印「相邻字最大位移差」——超过约半个格子（2.1 单位）就看得出断裂，
+调尾鳍幅度或过渡带宽度时以这个数为准。
+
 ## 想调整
 
 `ocean.js` 顶部的 `CFG`：

@@ -1,0 +1,16 @@
+{
+  "name": "orca-lab",
+  "private": true,
+  "type": "module",
+  "description": "Offline render harness for the 0/1 whale on zeng-hui.github.io",
+  "scripts": {
+    "tail": "node tail-phases.mjs",
+    "fin": "node fin-frames.mjs",
+    "heading": "node headings.mjs",
+    "life": "node lifecycle.mjs",
+    "flow": "node flow-stats.mjs"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.60"
+  }
+}
