@@ -17,18 +17,18 @@
     lenMax: 560,
     lenRatio: 0.34,
     swim: 13,           // px/s
-    lifeMin: 16,
-    lifeMax: 28,
+    lifeMin: 22,
+    lifeMax: 38,
     gapMin: 4,
     gapMax: 10,
     fadeIn: 2.2,
     fadeOut: 2.4,
     glanceEvery: 14,
     glanceHold: 3.4,
-    depthFar: 1.6,      // 游到头时离镜头远 1.6 倍
-    diveSpan: 8.5,      // 去程秒数（深度线性推进，大小按 1/深度 掉）
-    holdSpan: 1.2,      // 在远处待一下掉头
-    riseSpan: 8.5       // 回程秒数
+    depthFar: 3.0,      // 游到头时离镜头远 3 倍（最小 1/3）
+    diveSpan: 13.0,     // 去程秒数（深度线性推进，大小按 1/深度 掉）
+    holdSpan: 1.4,      // 在远处待一下掉头
+    riseSpan: 13.0      // 回程秒数
   };
 
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -212,8 +212,10 @@
       if (t < dOut) { var a = t / dOut; prog = a * a * (3 - 2 * a); }
       else if (t < dOut + dHold) { prog = 1; }
       else { var b = (t - dOut - dHold) / dBack; prog = 1 - b * b * (3 - 2 * b); }
-      var depth = 1 + (CFG.depthFar - 1) * prog;
-      state.zoom = 1 / depth;
+      // 直接驱动「看起来的大小」，再由它反推深度；位置与大小共用同一 k，投影保持一致
+      var sNow = 1 - (1 - 1 / CFG.depthFar) * prog;
+      var depth = 1 / sNow;
+      state.zoom = sNow;
 
       // 掉头发生在最远处
       if (t >= dOut + dHold * 0.45 && !state.flipped) {
@@ -226,7 +228,7 @@
       state.y = state.vpY + (state.p0y - state.vpY) / k;
       state.yOff = 0;
 
-      state.phase += dt * (1.25 + state.speed / 40);
+      state.phase += dt * (2.1 + 1.7 * prog);   // 游向远处时尾鳍加快
       state.look = Math.max(0, state.look - dt * 2.5);
       if (t >= span) {
         state.mode = 'swim';
