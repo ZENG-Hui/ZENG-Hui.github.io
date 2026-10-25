@@ -6,10 +6,10 @@
 
   // 身体侧影：钝头 + 后脑最厚 + 细尾柄。这三件事决定它是虎鲸而不是鱼。
   var ANCHORS = [
-    [0.000, 36.0], [0.060, 40.0], [0.130, 43.0], [0.220, 45.0],
-    [0.300, 46.0], [0.400, 45.0], [0.500, 43.0], [0.600, 39.0],
-    [0.680, 33.0], [0.760, 26.0], [0.840, 18.0], [0.900, 12.0],
-    [0.950, 8.5], [1.000, 6.5]
+    [0.000, 30.0], [0.050, 34.0], [0.110, 38.0], [0.180, 41.5],
+    [0.260, 43.5], [0.340, 44.0], [0.440, 43.0], [0.540, 41.0],
+    [0.640, 37.0], [0.720, 31.5], [0.800, 24.0], [0.870, 16.0],
+    [0.920, 10.5], [0.960, 8.0], [1.000, 6.5]
   ];
 
   var LUT_N = 256;
@@ -17,17 +17,27 @@
   (function () {
     var xs = ANCHORS.map(function (a) { return a[0]; });
     var ys = ANCHORS.map(function (a) { return a[1]; });
+    // 单调三次插值（Fritsch–Carlson）：
+    // 切线必须乘区间长度 h，否则每条线段都会鼓出去再凹回来 —— 那就是"扭曲"的来源。
+    var n = xs.length, d = [], m = [], k;
+    for (k = 0; k < n - 1; k++) d[k] = (ys[k + 1] - ys[k]) / (xs[k + 1] - xs[k]);
+    m[0] = d[0]; m[n - 1] = d[n - 2];
+    for (k = 1; k < n - 1; k++) m[k] = (d[k - 1] + d[k]) / 2;
+    for (k = 0; k < n - 1; k++) {
+      if (d[k] === 0) { m[k] = 0; m[k + 1] = 0; continue; }
+      var a = m[k] / d[k], b = m[k + 1] / d[k], q = a * a + b * b;
+      if (q > 9) {
+        var sc = 3 / Math.sqrt(q);
+        m[k] = sc * a * d[k]; m[k + 1] = sc * b * d[k];
+      }
+    }
     for (var i = 0; i <= LUT_N; i++) {
-      var s = i / LUT_N, k = 0;
-      while (k < xs.length - 2 && s > xs[k + 1]) k++;
-      var x0 = xs[k], x1 = xs[k + 1], t = (s - x0) / (x1 - x0);
-      var y0 = ys[k], y1 = ys[k + 1];
-      var yp = k > 0 ? ys[k - 1] : ys[k];
-      var yn = k < ys.length - 2 ? ys[k + 2] : ys[k + 1];
-      var m0 = (y1 - yp) * 0.5, m1 = (yn - y0) * 0.5;
+      var s = i / LUT_N, j = 0;
+      while (j < n - 2 && s > xs[j + 1]) j++;
+      var x0 = xs[j], h = xs[j + 1] - x0, t = (s - x0) / h;
       var t2 = t * t, t3 = t2 * t;
-      LUT[i] = (2 * t3 - 3 * t2 + 1) * y0 + (t3 - 2 * t2 + t) * m0 +
-               (-2 * t3 + 3 * t2) * y1 + (t3 - t2) * m1;
+      LUT[i] = (2 * t3 - 3 * t2 + 1) * ys[j] + (t3 - 2 * t2 + t) * h * m[j] +
+               (-2 * t3 + 3 * t2) * ys[j + 1] + (t3 - t2) * h * m[j + 1];
     }
   })();
 
@@ -90,12 +100,14 @@
     ctx.translate(X(1), centre(1, phase));
     ctx.rotate(tailBeat(phase));
     ctx.beginPath();
-    ctx.rotate(0.22);
-    ctx.moveTo(22, -12);
-    ctx.bezierCurveTo(2, -28, -26, -40, -52, -36);
-    ctx.bezierCurveTo(-46, -20, -34, -4, -26, 2);
-    ctx.bezierCurveTo(-36, 12, -46, 28, -52, 38);
-    ctx.bezierCurveTo(-26, 32, 0, 18, 22, 10);
+    ctx.rotate(0.12);
+    ctx.moveTo(14, -9);
+    ctx.bezierCurveTo(0, -22, -18, -32, -36, -32);
+    ctx.bezierCurveTo(-40, -32, -40, -25, -36, -19);
+    ctx.bezierCurveTo(-31, -12, -24, -5, -19, -1);
+    ctx.bezierCurveTo(-25, 6, -31, 15, -35, 24);
+    ctx.bezierCurveTo(-38, 30, -33, 36, -28, 33);
+    ctx.bezierCurveTo(-13, 27, 0, 18, 14, 9);
     ctx.closePath();
     ctx.restore();
   }
@@ -276,9 +288,9 @@
         }
 
         // 嘴：一条挖空的弧线，从吻端向后微微上扬
-        if (s > -0.03 && s < 0.17) {
-          var mouthY = 6.0 - 46 * s;
-          if (Math.abs(yv - mouthY) < 2.0) continue;
+        if (s > 0.045 && s < 0.155) {
+          var mouthY = 3.0 - 42 * s;
+          if (Math.abs(yv - mouthY) < 1.5) continue;
         }
 
         // 瞳孔：白斑里挖掉一小块，脸才有表情
