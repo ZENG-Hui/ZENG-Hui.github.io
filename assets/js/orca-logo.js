@@ -146,9 +146,19 @@
 
   // 尾巴甩起来：振幅沿身体往后加大
   // 躯干刚性，尾巴绕尾柄摆，胸鳍小幅拍
-  function logoXform(x, y, phase) {
+  function logoXform(x, y, phase, fin) {
     var bob = 1.4 * Math.sin(phase * 0.7);
-    // 只动尾巴：角度从腰部 0 渐变到尾梢最大
+
+    // 胸鳍：用软权重位移代替矩形切割，边界连续衰减，不会被"切开"
+    var wx = clamp01((x + 36) / 8) * clamp01((-4 - x) / 8);
+    var wy = clamp01((y - 28) / 8) * clamp01((56 - y) / 8);
+    var fw = wx * wy;
+    if (fw > 0.001) {
+      y += (fin || 0) * 5.2 * fw;
+      x -= (fin || 0) * 1.6 * fw;
+    }
+
+    // 尾：角度从腰部 0 渐变到尾梢最大
     var w = (x - 4) / 66;
     w = w < 0 ? 0 : w > 1 ? 1 : w;
     var ang = 0.24 * Math.sin(phase / 1.5) * w * w;
@@ -214,8 +224,43 @@
       }
     }
 
+    // 连通域：把胸鳍那种独立凸起认出来，别再拿矩形硬套
+    var label = new Int16Array(W * H);
+    for (i = 0; i < W * H; i++) label[i] = -1;
+    var stack = new Int32Array(W * H);
+    var comps = [], nextId = 0, sp, k, kx, ky, kk, dxx, dyy, nx, ny, nk;
+    for (i = 0; i < W * H; i++) {
+      if (!inside[i] || label[i] >= 0) continue;
+      sp = 0; stack[sp++] = i; label[i] = nextId;
+      var area = 0, sx = 0, sy = 0;
+      while (sp > 0) {
+        k = stack[--sp]; kx = k % W; ky = (k - kx) / W;
+        area++; sx += kx; sy += ky;
+        for (dxx = -1; dxx <= 1; dxx++) {
+          for (dyy = -1; dyy <= 1; dyy++) {
+            nx = kx + dxx; ny = ky + dyy;
+            if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+            nk = ny * W + nx;
+            if (inside[nk] && label[nk] < 0) { label[nk] = nextId; stack[sp++] = nk; }
+          }
+        }
+      }
+      comps.push({ id: nextId, area: area, cx: sx / area, cy: sy / area });
+      nextId++;
+    }
+    // 胸鳍：包含身体坐标 (-20, 44) 的那块
+    var fp = Math.round((-20 - X0) * PPU), fq = Math.round((44 - Y0) * PPU);
+    var flipperId = (fp >= 0 && fq >= 0 && fp < W && fq < H) ? label[fq * W + fp] : -1;
+
     return {
       W: W, H: H,
+      comps: comps,
+      flipperId: flipperId,
+      part: function (x, y) {
+        var px = Math.round((x - X0) * PPU), py = Math.round((y - Y0) * PPU);
+        if (px < 0 || py < 0 || px >= W || py >= H) return -1;
+        return label[py * W + px];
+      },
       sample: function (x, y) {
         var px = Math.round((x - X0) * PPU), py = Math.round((y - Y0) * PPU);
         if (px < 0 || py < 0 || px >= W || py >= H) return -1;
@@ -321,8 +366,8 @@
         var a = clamp01(b) * (0.55 + 0.45 * fade) * flick;
         if (a < 0.06) continue;
 
-        var p = logoXform(x, yv, phase);
-        var sx = p.x, sy = p.y;
+        var p = logoXform(x, yv, phase, st.fin);
+        var sx = -p.x, sy = p.y;   // 镜像：让脸朝向游动方向
 
         var flip = Math.floor(time * 0.85 + hash(i, j, 13) * 5) % 2;
         out.push({ x: sx, y: sy, a: a, ch: flip ? 1 : 0, hot: b > 0.7 });

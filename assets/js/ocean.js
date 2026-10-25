@@ -54,7 +54,12 @@
     glanceTimer: CFG.glanceEvery,
     glancePhase: 0,
     trail: [],
-    dir: 1
+    dir: 1,
+    fin: 0,
+    vy: 0,
+    yTarget: 0,
+    yTimer: 0,
+    seed: Math.random() * 6.283
   };
 
   function resize() {
@@ -144,7 +149,19 @@
       }
 
       state.phase += dt * (1.7 + state.speed / 26);
-      state.y += Math.sin(state.time * 0.55) * 3.2 * dt;
+      // 追一个高度目标：真的游上去或游下来，而不是原地抖
+      state.yTimer -= dt;
+      if (state.yTimer <= 0 || Math.abs(state.y - state.yTarget) < 10) {
+        state.yTarget = vh * (0.24 + Math.random() * 0.54);
+        state.yTimer = 8 + Math.random() * 11;
+      }
+      var vyT = Math.max(-11, Math.min(11, (state.yTarget - state.y) * 0.55));
+      state.vy += (vyT - state.vy) * Math.min(1, dt * 1.6);
+      state.y += state.vy * dt;
+      if (state.y < vh * 0.22) { state.y = vh * 0.22; state.vy = Math.abs(state.vy); }
+      if (state.y > vh * 0.82) { state.y = vh * 0.82; state.vy = -Math.abs(state.vy); }
+      var finTarget = Math.max(-1, Math.min(1, state.vy / 11));
+      state.fin += (finTarget - state.fin) * Math.min(1, dt * 2.2);
       if (Math.random() < dt * 6 && state.appear > 0.7) spawnTrail();
 
       if (state.timer <= 0 || state.x > vw - 90 * scale) {
@@ -181,6 +198,7 @@
       cell: CFG.cell,
       phase: state.phase,
       look: state.look,
+      fin: state.fin,
       blink: state.blink,
       appear: state.appear,
       time: state.time,
