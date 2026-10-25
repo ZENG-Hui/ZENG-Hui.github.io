@@ -186,6 +186,14 @@
         state.mode = 'turn';
         state.turnPhase = 0;
         state.flipped = false;
+        // 远点：沿游动方向远处、接近地平线；起点就是当前位置
+        state.p0x = state.x;
+        state.p0y = state.y;
+        var ahead = vw * 0.46;
+        state.vpX = state.dir > 0
+          ? Math.min(vw * 0.94, state.x + ahead)
+          : Math.max(vw * 0.06, state.x - ahead);
+        state.vpY = vh * 0.17;
       }
 
       var edge = state.dir > 0 ? (state.x > vw - 90 * scale) : (state.x < 90 * scale);
@@ -212,10 +220,11 @@
         state.dir = -state.dir;
         state.flipped = true;
       }
-      // 沿视线方向游：横向几乎不动，只随远近微缩
-      state.x += state.speed * 0.18 * state.zoom * dt * state.dir;
-      // 远了整体往地平线方向抬一点（透视里消失点在上方）
-      state.yOff += (-(vh * 0.11) * prog - state.yOff) * Math.min(1, dt * 1.2);
+      // 透视投影：位置和大小由同一个 k 决定，所以平移与缩放必然同步
+      var k = depth;
+      state.x = state.vpX + (state.p0x - state.vpX) / k;
+      state.y = state.vpY + (state.p0y - state.vpY) / k;
+      state.yOff = 0;
 
       state.phase += dt * (1.25 + state.speed / 40);
       state.look = Math.max(0, state.look - dt * 2.5);
