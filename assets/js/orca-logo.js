@@ -149,13 +149,15 @@
   function logoXform(x, y, phase, fin) {
     var bob = 1.4 * Math.sin(phase * 0.7);
 
-    // 胸鳍：用软权重位移代替矩形切割，边界连续衰减，不会被"切开"
-    var wx = clamp01((x + 36) / 8) * clamp01((-4 - x) / 8);
-    var wy = clamp01((y - 28) / 8) * clamp01((56 - y) / 8);
+    // 胸鳍：向外突出的那一小块（x 38..62, y 42..68），根在左、梢在右
+    var wx = clamp01((x - 34) / 8) * clamp01((64 - x) / 6);
+    var wy = clamp01((y - 40) / 6) * clamp01((70 - y) / 6);
     var fw = wx * wy;
     if (fw > 0.001) {
-      y += (fin || 0) * 5.2 * fw;
-      x -= (fin || 0) * 1.6 * fw;
+      var tx = clamp01((x - 38) / 20);
+      var amp = fw * (0.25 + 0.75 * tx);
+      y += (fin || 0) * 7.0 * amp;
+      x += (fin || 0) * 2.0 * amp;
     }
 
     // 尾：角度从腰部 0 渐变到尾梢最大
