@@ -36,7 +36,8 @@
     measure();
     var x = vw * 0.62;
     var y = vh * 0.74;
-    svg.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) rotate(-3deg)';
+    svg.style.transform =
+      'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) rotate(-3deg)';
   }
 
   function pickLane() {
@@ -88,10 +89,10 @@
       state.tilt += (0 - state.tilt) * Math.min(1, dt * 1.6);
 
       if (!state.nextGlance) state.nextGlance = 8 + Math.random() * 10;
+      // 到点之后一直等，直到它游进可视区中间再抬头看一眼
       if (state.clock > state.nextGlance) {
-        var onScreen = state.x > vw * 0.1 && state.x < vw * 0.72;
+        var onScreen = state.x > vw * 0.06 && state.x < vw * 0.86;
         if (onScreen) startGlance();
-        else state.nextGlance = state.clock + 4;
       }
     }
 
