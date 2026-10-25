@@ -6,7 +6,7 @@
 
   // 身体侧影：钝头 + 后脑最厚 + 细尾柄。这三件事决定它是虎鲸而不是鱼。
   var ANCHORS = [
-    [0.000, 20.0], [0.050, 30.0], [0.120, 38.0], [0.200, 43.0],
+    [0.000, 38.0], [0.060, 40.5], [0.140, 42.5], [0.220, 43.5],
     [0.300, 44.0], [0.400, 42.5], [0.500, 40.0], [0.600, 36.0],
     [0.680, 31.0], [0.760, 24.0], [0.840, 16.5], [0.900, 11.0],
     [0.950, 7.5], [1.000, 5.5]
@@ -80,7 +80,8 @@
     for (i = 1; i <= n; i++) ctx.lineTo(top[i][0], top[i][1]);
     ctx.quadraticCurveTo(X(1) - 3, centre(1, phase), bottom[n][0], bottom[n][1]);
     for (i = n - 1; i >= 0; i--) ctx.lineTo(bottom[i][0], bottom[i][1]);
-    ctx.quadraticCurveTo(X(0) + 7, centre(0, phase), top[0][0], top[0][1]);
+    var capR = halfWidth(0) * 2.0;
+    ctx.quadraticCurveTo(X(0) + capR, centre(0, phase), top[0][0], top[0][1]);
     ctx.closePath();
   }
 
@@ -129,7 +130,7 @@
   // ---------- 掩膜 + 距离场 ----------
 
   var PPU = 2.8;
-  var X0 = -178, Y0 = -110, XSPAN = 314, YSPAN = 200;
+  var X0 = -178, Y0 = -110, XSPAN = 322, YSPAN = 200;
   var NEUTRAL = 0.9;
 
   function buildMask(makeCanvas) {
@@ -197,20 +198,26 @@
 
   // ---------- 字 ----------
 
-  var X_LEFT = -172, X_RIGHT = 126;
+  var X_LEFT = -172, X_RIGHT = 141;
 
   // 白肚皮的分界线：从下巴往上抬，到身体中段变高
+  // 胸鳍前：一块大的白斑，从下巴铺到鳍根
   function bellyLine(s, w) {
-    // 白斑是一枚透镜形：下巴起头、中段最宽、尾柄前收成尖
-    var t = clamp01((s - 0.05) / 0.68);
-    var k = 0.62 - 0.30 * Math.sin(Math.PI * t) + 0.9 * t * t * t;
-    return k * w;
+    var t = clamp01((s - 0.02) / 0.30);
+    return (0.56 - 0.28 * Math.sin(Math.PI * t)) * w;
+  }
+
+  // 胸鳍后：一块小的
+  function hindLine(s, w) {
+    var t = clamp01((s - 0.38) / 0.24);
+    return (0.58 - 0.20 * Math.sin(Math.PI * t)) * w;
   }
 
   function inWhite(s, yv, w, look) {
     if (inPatch(s, yv, look)) return true;                 // 眼斑
     if (s < 0.10 && yv > 0.52 * w) return true;            // 下巴
-    if (s > 0.16 && s < 0.88 && yv > bellyLine(s, w)) return true;  // 腹部
+    if (s > 0.02 && s < 0.32 && yv > bellyLine(s, w)) return true;   // 鳍前的白
+    if (s > 0.38 && s < 0.62 && yv > hindLine(s, w)) return true;    // 鳍后的小白
     return false;
   }
 
@@ -223,10 +230,10 @@
 
   // 眼斑：斜着往上后方拉长的一枚白斑，虎鲸的第二张名片
   function inPatch(s, yv, look) {
-    var s0 = 0.092 + look * 0.012;
+    var s0 = 0.155 + look * 0.012;
     var y0 = -0.30 * halfWidth(s0);
-    var rs = 0.095 + look * 0.010;
-    var ry = 8.5 + look * 1.5;
+    var rs = 0.125 + look * 0.010;
+    var ry = 7.0 + look * 1.2;
     var tilt = y0 - (s - s0) * 62;
     var dx = (s - s0) / rs, dy = (yv - tilt) / ry;
     return dx * dx + dy * dy < 1;
@@ -276,9 +283,9 @@
         }
 
         // 瞳孔：白斑里挖掉一小块，脸才有表情
-        if (s > 0.05 && s < 0.16 && yv < 0.1 * w) {
-          var dex = (s - 0.098) * 200, dey = yv + 0.30 * w;
-          if (dex * dex + dey * dey < 3.4 * 3.4) continue;
+        if (s > 0.06 && s < 0.15 && yv < 0.1 * w) {
+          var dex = (s - 0.105) * 200, dey = yv + 0.24 * w;
+          if (dex * dex + dey * dey < 3.2 * 3.2) continue;
         }
 
         var keep = d < 0.7 ? 0.78 : 1;
