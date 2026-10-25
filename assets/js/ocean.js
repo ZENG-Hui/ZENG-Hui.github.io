@@ -68,6 +68,8 @@
     yOff: 0,
     inT: 0,
     outT: 0,
+    windT: 0,
+    windDur: 0,
     seed: Math.random() * 6.283
   };
 
@@ -211,10 +213,22 @@
 
       var edge = state.dir > 0 ? (state.x > vw - 90 * scale) : (state.x < 90 * scale);
       if (state.timer <= 0 || edge) {
+        // 先加速蓄力：尾鳍以 1.4 倍速拍两下，再出发
+        state.mode = 'windup';
+        state.windT = 0;
+        state.windDur = 2 * Math.PI * 1.5 * 2 / (1.4 * (1.7 + state.speed / 26));
+        state.timer = 0;
+      }
+    } else if (state.mode === 'windup') {
+      state.windT += dt;
+      var rate = 1.4 * (1.7 + state.speed / 26);
+      state.phase += dt * rate;                      // 尾鳍 1.4 倍速
+      state.x += state.speed * 0.30 * dt * state.dir; // 略微前冲，别像卡住
+      state.look = Math.max(0, state.look - dt * 2.5);
+      if (state.windT >= state.windDur) {
         state.mode = 'out';
         state.outT = 0;
         state.appear = 1;
-        state.timer = 0;
         anchor(false);
         // 抛硬币：游到远处掉头回来，还是隐入深海换个地方出现
         state.willReturn = Math.random() < 0.5;
