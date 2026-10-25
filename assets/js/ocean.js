@@ -84,13 +84,13 @@
     scale = len / 200;
   }
 
-  function anchor() {
+  // behind: 远点放在鲸鱼身后（浮现/回程，鲸鱼朝着观众游来）
+  // !behind: 远点放在鲸鱼前方（游走，鲸鱼朝着远方游去）
+  function anchor(behind) {
     state.p0x = state.x;
     state.p0y = state.y;
-    var ahead = vw * 0.46;
-    state.vpX = state.dir > 0
-      ? Math.min(vw * 0.94, state.p0x + ahead)
-      : Math.max(vw * 0.06, state.p0x - ahead);
+    var d = state.dir * vw * 0.46 * (behind ? -1 : 1);
+    state.vpX = Math.min(vw * 0.94, Math.max(vw * 0.06, state.p0x + d));
     state.vpY = vh * 0.17;
   }
 
@@ -122,7 +122,7 @@
 
   function restart() {
     place();
-    anchor();
+    anchor(true);
     state.mode = 'in';
     state.appear = 0;
     state.inT = 0;
@@ -215,7 +215,7 @@
         state.outT = 0;
         state.appear = 1;
         state.timer = 0;
-        anchor();
+        anchor(false);
         // 抛硬币：游到远处掉头回来，还是隐入深海换个地方出现
         state.willReturn = Math.random() < 0.5;
       }
