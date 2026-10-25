@@ -25,9 +25,10 @@
     fadeOut: 2.4,
     glanceEvery: 14,
     glanceHold: 3.4,
-    zoomFar: 0.42,      // 游远时缩到多小
-    turnSpan: 9.6,      // 游远 -> 掉头 -> 回来 的总时长（慢一点才像游出去）
-    turnDive: 0.42,     // 0..0.42 去，0.42..0.56 掉头，0.56..1 回
+    depthFar: 2.2,      // 游到头时离镜头远 2.2 倍
+    diveSpan: 6.0,      // 去程秒数（深度线性推进，大小按 1/深度 掉）
+    holdSpan: 1.2,      // 在远处待一下掉头
+    riseSpan: 6.0       // 回程秒数
   };
 
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -63,7 +64,7 @@
     yTarget: 0,
     yTimer: 0,
     zoom: 1,
-    zoomTo: 1,
+    yOff: 0,
     turnTimer: 10,
     turnPhase: 0,
     flipped: false,
@@ -128,8 +129,9 @@
 
   function step(dt) {
     state.time += dt;
-    if (state.mode !== 'turn' && state.zoom < 1) {
-      state.zoom = Math.min(1, state.zoom + dt * 0.35);   // 万一被打断，慢慢回到正常大小
+    if (state.mode !== 'turn') {
+      if (state.zoom < 1) state.zoom = Math.min(1, state.zoom + dt * 0.35);
+      state.yOff += (0 - state.yOff) * Math.min(1, dt * 1.5);
     }
 
     if (state.mode === 'off') {
@@ -193,25 +195,34 @@
       }
     } else if (state.mode === 'turn') {
       state.turnPhase += dt;
-      var T = CFG.turnSpan;
-      var p = Math.min(1, state.turnPhase / T);
-      var d = CFG.turnDive, u = d + 0.14;
-      // 去程缓入缓出，回程同理；中间在最小处停一下完成掉头
-      var far;
-      if (p < d) { var a = p / d; far = a * a * (3 - 2 * a); }
-      else if (p < u) { far = 1; }
-      else { var b = (p - u) / (1 - u); far = 1 - b * b * (3 - 2 * b); }
-      state.zoom = 1 - (1 - CFG.zoomFar) * far;
+      var dOut = CFG.diveSpan, dHold = CFG.holdSpan, dBack = CFG.riseSpan;
+      var span = dOut + dHold + dBack;
+      var t = Math.min(state.turnPhase, span);
 
-      if (p >= d + 0.06 && !state.flipped) { state.dir = -state.dir; state.flipped = true; }
-      // 屏幕速度跟远近同比例：远了看着就慢
-      state.x += state.speed * state.zoom * dt * state.dir;
+      // 深度是以等速推进的，不是大小；缓入缓出模拟加速/减速
+      var prog;
+      if (t < dOut) { var a = t / dOut; prog = a * a * (3 - 2 * a); }
+      else if (t < dOut + dHold) { prog = 1; }
+      else { var b = (t - dOut - dHold) / dBack; prog = 1 - b * b * (3 - 2 * b); }
+      var depth = 1 + (CFG.depthFar - 1) * prog;
+      state.zoom = 1 / depth;
+
+      // 掉头发生在最远处
+      if (t >= dOut + dHold * 0.45 && !state.flipped) {
+        state.dir = -state.dir;
+        state.flipped = true;
+      }
+      // 沿视线方向游：横向几乎不动，只随远近微缩
+      state.x += state.speed * 0.18 * state.zoom * dt * state.dir;
+      // 远了整体往地平线方向抬一点（透视里消失点在上方）
+      state.yOff += (-(vh * 0.11) * prog - state.yOff) * Math.min(1, dt * 1.2);
+
       state.phase += dt * (1.25 + state.speed / 40);
       state.look = Math.max(0, state.look - dt * 2.5);
-      if (p >= 1) {
+      if (t >= span) {
         state.mode = 'swim';
         state.zoom = 1;
-        state.turnTimer = 9 + Math.random() * 11;
+        state.turnTimer = 11 + Math.random() * 9;
       }
     } else if (state.mode === 'out') {
       state.appear = Math.max(0, state.appear - dt / CFG.fadeOut);
@@ -238,7 +249,7 @@
 
     orca.render(ctx, {
       x: state.x,
-      y: state.y,
+      y: state.y + state.yOff,
       scale: scale * state.zoom,
       cell: CFG.cell,
       phase: state.phase,

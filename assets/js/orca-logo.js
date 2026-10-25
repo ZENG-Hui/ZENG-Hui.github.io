@@ -441,7 +441,7 @@
       ctx.scale(st.scale, st.scale);
       var zoom = 1 + st.look * 0.03;   // 看你一眼=整体凑近一点，别横向压扁
       ctx.scale(zoom, zoom);
-      var haze = 0.55 + 0.45 * Math.min(1, st.zoom === undefined ? 1 : st.zoom);   // 远了淡一点
+      var haze = 0.30 + 0.70 * Math.min(1, st.zoom === undefined ? 1 : st.zoom);   // 远了淡一点
 
       var i, g;
       for (i = 0; i < glyphs.length; i++) {
