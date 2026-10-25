@@ -160,14 +160,18 @@
       x += (fin || 0) * 2.0 * amp;
     }
 
-    // 尾：角度从腰部 0 渐变到尾梢最大
-    var w = (x - 4) / 66;
-    w = w < 0 ? 0 : w > 1 ? 1 : w;
-    var ang = 0.24 * Math.sin(phase / 1.5) * w * w;
+    // 尾：绕尾柄（约 64,-12）整块摆，不再把后半身拧长
+    var tdx = x - 64, tdy = y + 12;
+    var tr = Math.sqrt(tdx * tdx + tdy * tdy);
+    var tt = clamp01((tr - 7) / 13);
+    tt = tt * tt * (3 - 2 * tt);
+    var side = clamp01((-13 - y) / 7);
+    var xgate = clamp01((x - 24) / 10);   // 只放尾巴那一段，别把背脊也拽起来
+    var ang = 0.30 * Math.sin(phase / 1.5) * tt * side * xgate;
     if (ang !== 0) {
-      var PX = 8, PY = 4;
-      var dx = x - PX, dy = y - PY, c = Math.cos(ang), s = Math.sin(ang);
-      return { x: PX + dx * c - dy * s, y: PY + dx * s + dy * c + bob };
+      var PX = 64, PY = -12;
+      var ddx = x - PX, ddy = y - PY, c = Math.cos(ang), s = Math.sin(ang);
+      return { x: PX + ddx * c - ddy * s, y: PY + ddx * s + ddy * c + bob };
     }
     return { x: x, y: y + bob };
   }
