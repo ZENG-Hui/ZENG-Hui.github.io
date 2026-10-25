@@ -6,11 +6,11 @@
 
 /* 小鲸鱼标记 */
 .whale {
-  width: 20px;
-  height: 15px;
+  width: 22px;
+  height: 17px;
   fill: var(--accent);
   stroke: none;
-  opacity: 0.9;
+  opacity: 0.92;
   flex: none;
 }
 .whale .eye { fill: var(--bg); }
@@ -23,6 +23,15 @@
   font-size: 0.92rem;
   line-height: 1.85;
   max-width: 62em;
+}
+
+/* 落款 */
+.signoff {
+  margin-top: 46px;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  color: var(--muted);
+  letter-spacing: 0.03em;
 }
 
 .papers { list-style: none; margin: 0; padding: 0; counter-reset: paper; }
