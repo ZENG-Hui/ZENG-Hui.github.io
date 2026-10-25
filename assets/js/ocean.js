@@ -25,10 +25,10 @@
     fadeOut: 2.4,
     glanceEvery: 14,
     glanceHold: 3.4,
-    depthFar: 2.2,      // 游到头时离镜头远 2.2 倍
-    diveSpan: 6.0,      // 去程秒数（深度线性推进，大小按 1/深度 掉）
+    depthFar: 1.6,      // 游到头时离镜头远 1.6 倍
+    diveSpan: 8.5,      // 去程秒数（深度线性推进，大小按 1/深度 掉）
     holdSpan: 1.2,      // 在远处待一下掉头
-    riseSpan: 6.0       // 回程秒数
+    riseSpan: 8.5       // 回程秒数
   };
 
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
