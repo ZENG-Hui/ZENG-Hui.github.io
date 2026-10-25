@@ -25,8 +25,9 @@
     fadeOut: 2.4,
     glanceEvery: 14,
     glanceHold: 3.4,
-    zoomFar: 0.45,      // 游远时缩到多小
-    turnSpan: 5.4       // 游远 -> 掉头 -> 回来 的总时长
+    zoomFar: 0.42,      // 游远时缩到多小
+    turnSpan: 9.6,      // 游远 -> 掉头 -> 回来 的总时长（慢一点才像游出去）
+    turnDive: 0.42,     // 0..0.42 去，0.42..0.56 掉头，0.56..1 回
   };
 
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -127,8 +128,8 @@
 
   function step(dt) {
     state.time += dt;
-    if (state.mode !== 'off') {
-      state.zoom += (state.zoomTo - state.zoom) * Math.min(1, dt * 1.5);
+    if (state.mode !== 'turn' && state.zoom < 1) {
+      state.zoom = Math.min(1, state.zoom + dt * 0.35);   // 万一被打断，慢慢回到正常大小
     }
 
     if (state.mode === 'off') {
@@ -155,7 +156,7 @@
         if (state.glancePhase < 1.0) state.look = Math.max(0, state.look - dt * 1.8);
       } else {
         state.look = Math.max(0, state.look - dt * 2.2);
-        state.x += state.speed * dt * state.dir;
+        state.x += state.speed * state.zoom * dt * state.dir;
         if (state.glanceTimer <= 0) {
           state.glancePhase = CFG.glanceHold;
           state.glanceTimer = CFG.glanceEvery * (0.8 + Math.random());
@@ -194,20 +195,22 @@
       state.turnPhase += dt;
       var T = CFG.turnSpan;
       var p = Math.min(1, state.turnPhase / T);
-      if (p < 0.40) {
-        state.zoomTo = CFG.zoomFar;
-      } else if (p < 0.52) {
-        if (!state.flipped) { state.dir = -state.dir; state.flipped = true; }
-        state.zoomTo = CFG.zoomFar;
-      } else {
-        state.zoomTo = 1;
-      }
-      state.x += state.speed * 0.30 * dt * state.dir;
-      state.phase += dt * (1.2 + state.speed / 40);
+      var d = CFG.turnDive, u = d + 0.14;
+      // 去程缓入缓出，回程同理；中间在最小处停一下完成掉头
+      var far;
+      if (p < d) { var a = p / d; far = a * a * (3 - 2 * a); }
+      else if (p < u) { far = 1; }
+      else { var b = (p - u) / (1 - u); far = 1 - b * b * (3 - 2 * b); }
+      state.zoom = 1 - (1 - CFG.zoomFar) * far;
+
+      if (p >= d + 0.06 && !state.flipped) { state.dir = -state.dir; state.flipped = true; }
+      // 屏幕速度跟远近同比例：远了看着就慢
+      state.x += state.speed * state.zoom * dt * state.dir;
+      state.phase += dt * (1.25 + state.speed / 40);
       state.look = Math.max(0, state.look - dt * 2.5);
       if (p >= 1) {
         state.mode = 'swim';
-        state.zoomTo = 1;
+        state.zoom = 1;
         state.turnTimer = 9 + Math.random() * 11;
       }
     } else if (state.mode === 'out') {
