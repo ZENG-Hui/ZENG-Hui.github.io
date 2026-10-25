@@ -148,13 +148,10 @@
   // 躯干刚性，尾巴绕尾柄摆，胸鳍小幅拍
   function logoXform(x, y, phase) {
     var bob = 1.4 * Math.sin(phase * 0.7);
-    // 尾摆：角度从腰部 0 渐变到尾梢最大 —— 是"弓"不是"折"
-    var w = (x - 0) / 70;
+    // 只有尾部动：角度从腰部 0 渐变到尾梢最大，头和前身完全刚性
+    var w = (x - 4) / 66;
     w = w < 0 ? 0 : w > 1 ? 1 : w;
     var ang = 0.34 * Math.sin(phase) * w * w;
-    // 胸鳍：小幅拍动
-    var fw = clamp01((x + 10) / -34);
-    ang += 0.15 * Math.sin(phase * 1.5 + 0.6) * fw * clamp01((y - 12) / 26);
     if (ang !== 0) {
       var PX = 8, PY = 4;
       var dx = x - PX, dy = y - PY, c = Math.cos(ang), s = Math.sin(ang);
