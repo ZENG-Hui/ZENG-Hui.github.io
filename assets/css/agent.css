@@ -14,7 +14,7 @@
   height: 100%;
   display: block;
   pointer-events: none;
-  opacity: 0.92;
+  opacity: 0.9;
 }
 
 /* 内容压在鲸鱼之上；header 本来就是 sticky + z-index 50，不要动它的 position */

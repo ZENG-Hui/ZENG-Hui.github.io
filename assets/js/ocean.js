@@ -13,9 +13,9 @@
 
   var CFG = {
     cell: 4.2,          // 身体坐标里的格子边长
-    lenMin: 300,
-    lenMax: 560,
-    lenRatio: 0.38,
+    lenMin: 280,
+    lenMax: 520,
+    lenRatio: 0.32,
     swim: 13,           // px/s
     lifeMin: 16,
     lifeMax: 28,
@@ -71,7 +71,13 @@
   }
 
   function place() {
-    state.x = vw * (0.18 + Math.random() * 0.5);
+    // 别让尾鳍或吻部一开始就被屏幕切掉
+    var left = 140 * scale + 30;
+    var right = 124 * scale + 30;
+    var lo = Math.max(left, vw * 0.18);
+    var hi = Math.min(vw - right, vw * 0.72);
+    if (hi < lo) hi = lo;
+    state.x = lo + Math.random() * (hi - lo);
     state.y = vh * (0.56 + Math.random() * 0.22);
     state.phase = Math.random() * Math.PI * 2;
     state.speed = CFG.swim * (0.75 + Math.random() * 0.6);
@@ -141,7 +147,7 @@
       state.y += Math.sin(state.time * 0.55) * 3.2 * dt;
       if (Math.random() < dt * 6 && state.appear > 0.7) spawnTrail();
 
-      if (state.timer <= 0 || state.x > vw + 120) {
+      if (state.timer <= 0 || state.x > vw - 90 * scale) {
         state.mode = 'out';
         state.timer = 0;
       }
