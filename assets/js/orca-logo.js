@@ -439,7 +439,8 @@
       ctx.save();
       ctx.translate(st.x, st.y);
       ctx.scale(st.scale, st.scale);
-      ctx.scale(1 - st.look * 0.05, 1 + st.look * 0.02);
+      var zoom = 1 + st.look * 0.03;   // 看你一眼=整体凑近一点，别横向压扁
+      ctx.scale(zoom, zoom);
 
       var i, g;
       for (i = 0; i < glyphs.length; i++) {
