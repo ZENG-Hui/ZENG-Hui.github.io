@@ -82,7 +82,11 @@
     var lo = Math.max(left, vw * 0.18);
     var hi = Math.min(vw - right, vw * 0.72);
     if (hi < lo) hi = lo;
-    state.x = lo + Math.random() * (hi - lo);
+    // 随机掉头：朝右从左半场出场，朝左从右半场出场
+    state.dir = Math.random() < 0.5 ? 1 : -1;
+    state.x = state.dir > 0
+      ? lo + Math.random() * (hi - lo) * 0.45
+      : hi - Math.random() * (hi - lo) * 0.45;
     state.y = vh * (0.56 + Math.random() * 0.22);
     state.phase = Math.random() * Math.PI * 2;
     state.speed = CFG.swim * (0.75 + Math.random() * 0.6);
@@ -100,7 +104,7 @@
   }
 
   function spawnTrail() {
-    var tailX = state.x - 100 * scale * 0.95;
+    var tailX = state.x - 100 * scale * 0.95 * state.dir;
     var tailY = state.y + Math.sin(state.phase - 0.9) * 4;
     state.trail.push({
       x: tailX + (Math.random() - 0.5) * 26,
@@ -137,11 +141,11 @@
       if (state.glancePhase > 0) {
         state.glancePhase -= dt;
         state.look = Math.min(1, state.look + dt * 1.6);
-        state.x += state.speed * 0.12 * dt;
+        state.x += state.speed * 0.12 * dt * state.dir;
         if (state.glancePhase < 1.0) state.look = Math.max(0, state.look - dt * 1.8);
       } else {
         state.look = Math.max(0, state.look - dt * 2.2);
-        state.x += state.speed * dt;
+        state.x += state.speed * dt * state.dir;
         if (state.glanceTimer <= 0) {
           state.glancePhase = CFG.glanceHold;
           state.glanceTimer = CFG.glanceEvery * (0.8 + Math.random());
@@ -164,7 +168,8 @@
       state.fin += (finTarget - state.fin) * Math.min(1, dt * 2.2);
       if (Math.random() < dt * 6 && state.appear > 0.7) spawnTrail();
 
-      if (state.timer <= 0 || state.x > vw - 90 * scale) {
+      var edge = state.dir > 0 ? (state.x > vw - 90 * scale) : (state.x < 90 * scale);
+      if (state.timer <= 0 || edge) {
         state.mode = 'out';
         state.timer = 0;
       }
@@ -199,6 +204,7 @@
       phase: state.phase,
       look: state.look,
       fin: state.fin,
+      dir: state.dir,
       blink: state.blink,
       appear: state.appear,
       time: state.time,

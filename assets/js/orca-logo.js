@@ -373,7 +373,7 @@
         if (a < 0.06) continue;
 
         var p = logoXform(x, yv, phase, st.fin);
-        var sx = -p.x, sy = p.y;   // 镜像：让脸朝向游动方向
+        var sx = st.dir < 0 ? p.x : -p.x, sy = p.y;   // 朝向跟着游动方向
 
         var flip = Math.floor(time * 0.85 + hash(i, j, 13) * 5) % 2;
         out.push({ x: sx, y: sy, a: a, ch: flip ? 1 : 0, hot: b > 0.7 });
