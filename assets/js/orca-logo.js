@@ -148,14 +148,7 @@
   // 躯干刚性，尾巴绕尾柄摆，胸鳍小幅拍
   function logoXform(x, y, phase) {
     var bob = 1.4 * Math.sin(phase * 0.7);
-    // 胸鳍：logo 里是一块独立凸起（实测 x -35..-6，y 33..52），根部在右端
-    if (x > -38 && x < -8 && y > 34 && y < 52) {
-      var fa = 0.17 * Math.sin(phase * 1.6 + 0.5);
-      var fx = -8, fy = 44;
-      var fdx = x - fx, fdy = y - fy, fc = Math.cos(fa), fs = Math.sin(fa);
-      return { x: fx + fdx * fc - fdy * fs, y: fy + fdx * fs + fdy * fc + bob };
-    }
-    // 尾：角度从腰部 0 渐变到尾梢最大
+    // 只动尾巴：角度从腰部 0 渐变到尾梢最大
     var w = (x - 4) / 66;
     w = w < 0 ? 0 : w > 1 ? 1 : w;
     var ang = 0.34 * Math.sin(phase) * w * w;
