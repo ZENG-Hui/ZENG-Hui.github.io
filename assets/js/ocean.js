@@ -23,8 +23,8 @@
     gapMax: 10,
     fadeIn: 1.8,
     fadeOut: 1.8,
-    inSpan: 8.0,        // 从深海游上来
-    outSpan: 8.0,       // 游回深海
+    inSpan: 11.4,       // 从深海游上来（0.7 倍速 => 8/0.7）
+    outSpan: 11.4,      // 游回深海（同上）
     glanceEvery: 14,
     glanceHold: 3.4,
     depthFar: 3.0,      // 游到头时离镜头远 3 倍（最小 1/3）
@@ -166,7 +166,7 @@
       var ei = pi * pi * (3 - 2 * pi);
       setDepth(CFG.depthFar + (1 - CFG.depthFar) * ei);        // 深 -> 近
       state.appear = state.fade === false ? 1 : Math.min(1, state.inT / CFG.fadeIn);
-      state.phase += dt * (2.9 - 1.1 * ei);                    // 远处尾鳍拍得快
+      state.phase += dt * (3.48 - 1.32 * ei);                  // 出场尾鳍拍得快（x1.2）
       if (pi >= 1) {
         state.mode = 'swim';
         state.appear = 1;
@@ -227,7 +227,7 @@
       state.appear = po > 1 - CFG.fadeOut / CFG.outSpan
         ? Math.max(0, (1 - po) / (CFG.fadeOut / CFG.outSpan))
         : 1;
-      state.phase += dt * (2.1 + 1.7 * eo);
+      state.phase += dt * (2.52 + 2.04 * eo);                  // 离场同上（x1.2）
       if (po >= 1) {
         if (state.willReturn) {
           // 原地掉头，沿同一条视线游回来
