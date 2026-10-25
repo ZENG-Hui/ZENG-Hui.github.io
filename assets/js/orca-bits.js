@@ -6,10 +6,10 @@
 
   // 身体侧影：钝头 + 后脑最厚 + 细尾柄。这三件事决定它是虎鲸而不是鱼。
   var ANCHORS = [
-    [0.000, 38.0], [0.060, 40.5], [0.140, 42.5], [0.220, 43.5],
-    [0.300, 44.0], [0.400, 42.5], [0.500, 40.0], [0.600, 36.0],
-    [0.680, 31.0], [0.760, 24.0], [0.840, 16.5], [0.900, 11.0],
-    [0.950, 7.5], [1.000, 5.5]
+    [0.000, 36.0], [0.060, 40.0], [0.130, 43.0], [0.220, 45.0],
+    [0.300, 46.0], [0.400, 45.0], [0.500, 43.0], [0.600, 39.0],
+    [0.680, 33.0], [0.760, 26.0], [0.840, 18.0], [0.900, 12.0],
+    [0.950, 8.5], [1.000, 6.5]
   ];
 
   var LUT_N = 256;
@@ -51,7 +51,7 @@
   // 吻端往下垂一点，脸才立得起来
   function headDrop(s) {
     var t = clamp01((0.13 - s) / 0.13);
-    return 8 * t * t;
+    return 4 * t * t;
   }
 
   function tailBeat(phase) {
@@ -80,7 +80,7 @@
     for (i = 1; i <= n; i++) ctx.lineTo(top[i][0], top[i][1]);
     ctx.quadraticCurveTo(X(1) - 3, centre(1, phase), bottom[n][0], bottom[n][1]);
     for (i = n - 1; i >= 0; i--) ctx.lineTo(bottom[i][0], bottom[i][1]);
-    var capR = halfWidth(0) * 2.0;
+    var capR = halfWidth(0) * 1.9;
     ctx.quadraticCurveTo(X(0) + capR, centre(0, phase), top[0][0], top[0][1]);
     ctx.closePath();
   }
@@ -90,26 +90,25 @@
     ctx.translate(X(1), centre(1, phase));
     ctx.rotate(tailBeat(phase));
     ctx.beginPath();
-    ctx.rotate(0.2);
-    ctx.moveTo(20, -9);
-    ctx.bezierCurveTo(0, -22, -26, -35, -50, -33);
-    ctx.bezierCurveTo(-44, -18, -36, -6, -30, 1);
-    ctx.bezierCurveTo(-38, 8, -44, 21, -48, 31);
-    ctx.bezierCurveTo(-28, 26, -4, 14, 20, 8);
+    ctx.rotate(0.22);
+    ctx.moveTo(22, -12);
+    ctx.bezierCurveTo(2, -28, -26, -40, -52, -36);
+    ctx.bezierCurveTo(-46, -20, -34, -4, -26, 2);
+    ctx.bezierCurveTo(-36, 12, -46, 28, -52, 38);
+    ctx.bezierCurveTo(-26, 32, 0, 18, 22, 10);
     ctx.closePath();
     ctx.restore();
   }
 
   function finPath(ctx, phase) {
     ctx.save();
-    // 小三角，尖往后弯
     ctx.translate(X(0.40), centre(0.40, phase) - halfWidth(0.40) * 0.84);
     ctx.rotate(Math.sin(phase - 0.4) * 2.2 * Math.PI / 180);
     ctx.beginPath();
-    ctx.moveTo(17, 4);
-    ctx.bezierCurveTo(14, -12, 4, -26, -9, -34);
-    ctx.bezierCurveTo(-15, -36, -18, -30, -18, -24);
-    ctx.bezierCurveTo(-17, -12, -14, -3, -13, 4);
+    ctx.moveTo(14, 4);
+    ctx.bezierCurveTo(10, -16, -2, -38, -18, -50);
+    ctx.bezierCurveTo(-24, -52, -28, -44, -26, -34);
+    ctx.bezierCurveTo(-22, -16, -16, -4, -12, 4);
     ctx.closePath();
     ctx.restore();
   }
