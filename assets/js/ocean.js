@@ -30,7 +30,6 @@
     depthFar: 3.0,      // 游到头时离镜头远 3 倍（最小 1/3）
     diveSpan: 13.0,     // 去程秒数（深度线性推进，大小按 1/深度 掉）
     holdSpan: 1.4,      // 在远处待一下掉头
-    riseSpan: 13.0      // 回程秒数
   };
 
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -69,9 +68,6 @@
     yOff: 0,
     inT: 0,
     outT: 0,
-    turnTimer: 10,
-    turnPhase: 0,
-    flipped: false,
     seed: Math.random() * 6.283
   };
 
@@ -131,6 +127,8 @@
     state.appear = 0;
     state.inT = 0;
     state.outT = 0;
+    state.fade = true;
+    state.willReturn = false;
     state.timer = 0;
     state.look = 0;
     state.glanceTimer = CFG.glanceEvery * (0.6 + Math.random() * 0.8);
@@ -167,13 +165,14 @@
       var pi = Math.min(1, state.inT / CFG.inSpan);
       var ei = pi * pi * (3 - 2 * pi);
       setDepth(CFG.depthFar + (1 - CFG.depthFar) * ei);        // 深 -> 近
-      state.appear = Math.min(1, state.inT / CFG.fadeIn);
+      state.appear = state.fade === false ? 1 : Math.min(1, state.inT / CFG.fadeIn);
       state.phase += dt * (2.9 - 1.1 * ei);                    // 远处尾鳍拍得快
       if (pi >= 1) {
         state.mode = 'swim';
         state.appear = 1;
         state.zoom = 1;
-        state.timer = CFG.lifeMin + Math.random() * (CFG.lifeMax - CFG.lifeMin);
+        state.fade = true;
+        if (state.timer <= 0) state.timer = CFG.lifeMin + Math.random() * (CFG.lifeMax - CFG.lifeMin);
       }
     } else if (state.mode === 'swim') {
       state.timer -= dt;
@@ -209,13 +208,6 @@
       state.fin += (finTarget - state.fin) * Math.min(1, dt * 2.2);
       if (Math.random() < dt * 6 && state.appear > 0.7) spawnTrail();
 
-      state.turnTimer -= dt;
-      if (state.turnTimer <= 0 && state.zoom < 1.02) {
-        state.mode = 'turn';
-        state.turnPhase = 0;
-        state.flipped = false;
-        anchor();
-      }
 
       var edge = state.dir > 0 ? (state.x > vw - 90 * scale) : (state.x < 90 * scale);
       if (state.timer <= 0 || edge) {
@@ -224,36 +216,8 @@
         state.appear = 1;
         state.timer = 0;
         anchor();
-      }
-    } else if (state.mode === 'turn') {
-      state.turnPhase += dt;
-      var dOut = CFG.diveSpan, dHold = CFG.holdSpan, dBack = CFG.riseSpan;
-      var span = dOut + dHold + dBack;
-      var t = Math.min(state.turnPhase, span);
-
-      // 深度是以等速推进的，不是大小；缓入缓出模拟加速/减速
-      var prog;
-      if (t < dOut) { var a = t / dOut; prog = a * a * (3 - 2 * a); }
-      else if (t < dOut + dHold) { prog = 1; }
-      else { var b = (t - dOut - dHold) / dBack; prog = 1 - b * b * (3 - 2 * b); }
-      // 直接驱动「看起来的大小」，再由它反推深度；位置与大小共用同一 k，投影保持一致
-      var sNow = 1 - (1 - 1 / CFG.depthFar) * prog;
-      var depth = 1 / sNow;
-      state.zoom = sNow;
-
-      // 掉头发生在最远处
-      if (t >= dOut + dHold * 0.45 && !state.flipped) {
-        state.dir = -state.dir;
-        state.flipped = true;
-      }
-      setDepth(depth);   // 位置和大小由同一个深度决定
-
-      state.phase += dt * (2.1 + 1.7 * prog);   // 游向远处时尾鳍加快
-      state.look = Math.max(0, state.look - dt * 2.5);
-      if (t >= span) {
-        state.mode = 'swim';
-        state.zoom = 1;
-        state.turnTimer = 11 + Math.random() * 9;
+        // 抛硬币：游到远处掉头回来，还是隐入深海换个地方出现
+        state.willReturn = Math.random() < 0.5;
       }
     } else if (state.mode === 'out') {
       state.outT += dt;
@@ -265,8 +229,17 @@
         : 1;
       state.phase += dt * (2.1 + 1.7 * eo);
       if (po >= 1) {
-        state.mode = 'off';
-        state.timer = CFG.gapMin + Math.random() * (CFG.gapMax - CFG.gapMin);
+        if (state.willReturn) {
+          // 原地掉头，沿同一条视线游回来
+          state.dir = -state.dir;
+          state.mode = 'in';
+          state.inT = 0;
+          state.appear = 1;
+          state.fade = false;
+        } else {
+          state.mode = 'off';
+          state.timer = CFG.gapMin + Math.random() * (CFG.gapMax - CFG.gapMin);
+        }
       }
     }
 
