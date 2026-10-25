@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zeng Hui · 个人主页</title>
+<meta name="description" content="Zeng Hui 的个人主页：训练动力学与实验复现，项目与联系方式。">
+<meta name="author" content="Zeng Hui">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Zeng Hui · 个人主页">
+<meta property="og:description" content="训练动力学与实验复现，项目与联系方式。">
+<meta name="theme-color" content="#0b0d10" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbfaf8" media="(prefers-color-scheme: light)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0d10'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='28' fill='%237cc4ff' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('theme');
+      var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = saved || (dark ? 'dark' : 'light');
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到正文</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#top">ZENG-Hui<span class="brand-dot">.</span></a>
+    <nav class="nav" aria-label="主导航">
+      <a href="#about">关于</a>
+      <a href="#work">项目</a>
+      <a href="https://github.com/ZENG-Hui" rel="me noopener">GitHub</a>
+      <a href="#contact">联系</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换深浅色主题" aria-pressed="false">
+      <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ========== HERO ========== -->
+  <section class="hero" id="top">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="pulse"></span>正在复现 grokking 实验</p>
+        <h1>你好，我是<br><span class="grad">Zeng Hui</span></h1>
+        <p class="lede">
+          我折腾小型 Transformer 的训练动力学：把论文里的实验老老实实跑一遍，
+          看看哪些结论换台机器、换个随机种子之后还站得住。
+        </p>
+        <div class="cta">
+          <a class="btn btn-primary" href="#work">看看我在做什么</a>
+          <a class="btn btn-ghost" href="mailto:zengh17@163.com">发邮件给我</a>
+        </div>
+        <ul class="hero-meta">
+          <li><span>状态</span>开放交流</li>
+          <li><span>方向</span>训练动力学 / 泛化</li>
+          <li><span>语言</span>中文 / English</li>
+        </ul>
+      </div>
+
+      <aside class="hero-card" aria-label="最近在做的事">
+        <div class="card-head">
+          <span class="dot-row"><i></i><i></i><i></i></span>
+          <span class="card-title">现在</span>
+        </div>
+        <ul class="now-list">
+          <li><em>在做</em><p>复现 grokking：把权重衰减和训练集比例跑成一组对照。</p></li>
+          <li><em>在读</em><p>泛化与隐式正则化相关的论文，边读边记。</p></li>
+          <li><em>在折腾</em><p>本地实验环境的自动化，省掉每次手动对齐配置的时间。</p></li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ========== ABOUT ========== -->
+  <section class="section reveal" id="about">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="label">ABOUT</p>
+        <h2>关于我</h2>
+      </header>
+      <div class="about-grid">
+        <div class="prose">
+          <p>
+            我是 Zeng Hui，兴趣在深度学习里的「为什么」——模型什么时候从记忆转向泛化，
+            训练曲线上的哪些现象是稳健的，哪些只是随机种子的错觉。
+          </p>
+          <p>
+            做法偏工程：先把实验搭到能一键重跑，再改一个变量看响应。
+            踩过的坑会写下来，因为下次踩的通常还是我。
+          </p>
+          <p class="muted">
+            如果你也在做类似的事，或者想聊聊复现里的脏活，欢迎邮件找我。
+          </p>
+        </div>
+        <div class="skills">
+          <div class="skill-group">
+            <h3>日常使用</h3>
+            <ul class="chips">
+              <li>Python</li><li>PyTorch</li><li>Shell</li><li>Git</li>
+            </ul>
+          </div>
+          <div class="skill-group">
+            <h3>在做的方向</h3>
+            <ul class="chips">
+              <li>训练动力学</li><li>泛化</li><li>实验复现</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== WORK ========== -->
+  <section class="section reveal" id="work">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="label">WORK</p>
+        <h2>项目</h2>
+        <p class="section-sub">只放已经能跑、说得清结果的东西。</p>
+      </header>
+
+      <div class="cards">
+        <article class="card">
+          <div class="card-top">
+            <h3><a href="https://github.com/ZENG-Hui/grokkingRe">grokkingRe</a></h3>
+            <span class="year">2025</span>
+          </div>
+          <p>
+            复现 OpenAI <em>Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets</em>：
+            在模块化加法任务上重跑噪声实验，重点看权重衰减与训练集比例如何改变泛化出现的时点。
+          </p>
+          <ul class="chips chips-sm">
+            <li>Python</li><li>PyTorch</li><li>复现</li>
+          </ul>
+          <a class="card-link" href="https://github.com/ZENG-Hui/grokkingRe">查看代码 →</a>
+        </article>
+
+        <article class="card">
+          <div class="card-top">
+            <h3><a href="https://github.com/ZENG-Hui/ZENG-Hui.github.io">个人主页</a></h3>
+            <span class="year">2026</span>
+          </div>
+          <p>
+            就是你现在看的这一页。手写 HTML / CSS，没有框架、没有构建步骤，
+            样式变量集中在一个位置，改配色只动一行。
+          </p>
+          <ul class="chips chips-sm">
+            <li>HTML</li><li>CSS</li><li>GitHub Pages</li>
+          </ul>
+          <a class="card-link" href="https://github.com/ZENG-Hui/ZENG-Hui.github.io">查看代码 →</a>
+        </article>
+      </div>
+
+      <p class="more-link">
+        <a href="https://github.com/ZENG-Hui">其余的实验和半成品在 GitHub 上 →</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ========== CONTACT ========== -->
+  <section class="section section-contact reveal" id="contact">
+    <div class="wrap contact-inner">
+      <p class="label">CONTACT</p>
+      <h2>聊聊？</h2>
+      <p class="lede">邮件是最靠谱的方式，我通常两天内回复。</p>
+      <a class="mail" href="mailto:zengh17@163.com">zengh17@163.com</a>
+      <ul class="social">
+        <li><a href="https://github.com/ZENG-Hui" rel="me noopener">GitHub</a></li>
+        <li><a href="https://github.com/ZENG-Hui/grokkingRe">grokkingRe</a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p>© <span id="year">2026</span> Zeng Hui</p>
+    <p class="muted">手写 HTML / CSS · <a href="#top">回到顶部 ↑</a></p>
+  </div>
+</footer>
+
+<script src="assets/js/main.js" defer></script>
+</body>
+</html>
