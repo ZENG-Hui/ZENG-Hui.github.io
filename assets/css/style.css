@@ -352,6 +352,50 @@ p { margin: 0; }
 .prose p { margin-bottom: 18px; color: var(--text-dim); max-width: 46em; }
 .prose p:last-child { margin-bottom: 0; }
 
+/* 为什么从物理转向 AI */
+.why {
+  margin-top: 46px;
+  padding-top: 34px;
+  border-top: 1px solid var(--border-soft);
+  max-width: 52em;
+}
+.why-q {
+  font-family: var(--serif);
+  font-size: 1.14rem;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+.why-quote {
+  margin: 0 0 28px;
+  padding-left: 22px;
+  border-left: 2px solid var(--border);
+}
+.why-quote p {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.95;
+  margin-bottom: 14px;
+}
+.why-quote p:last-child { margin-bottom: 0; }
+
+.why-crit {
+  padding: 18px 20px;
+  background: var(--accent-soft);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.why-crit .label {
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.why-crit p:not(.label) {
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  line-height: 1.85;
+  margin-bottom: 10px;
+}
+.why-crit p:last-child { margin-bottom: 0; }
+
 .skill-group { margin-bottom: 26px; }
 .skill-group h3 {
   font-size: 0.76rem;
