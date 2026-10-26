@@ -351,6 +351,7 @@ p { margin: 0; }
 
 .prose p { margin-bottom: 18px; color: var(--text-dim); max-width: 46em; }
 .prose p:last-child { margin-bottom: 0; }
+.prose del { color: var(--muted); text-decoration-line: line-through; text-decoration-thickness: 1px; }
 
 /* 为什么从物理转向 AI */
 .why {
