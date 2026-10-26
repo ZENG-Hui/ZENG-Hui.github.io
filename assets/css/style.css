@@ -20,7 +20,7 @@
   --shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.85);
   --radius: 18px;
   --radius-sm: 10px;
-  --wrap: 1120px;
+  --wrap: 1080px;
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
           "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   --serif: "Iowan Old Style", "Palatino Linotype", Georgia, "Songti SC",
@@ -345,11 +345,11 @@ p { margin: 0; }
 
 .about-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
-  gap: 48px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 56px;
 }
 
-.prose p { margin-bottom: 18px; color: var(--text-dim); max-width: 42em; }
+.prose p { margin-bottom: 18px; color: var(--text-dim); max-width: 46em; }
 .prose p:last-child { margin-bottom: 0; }
 .prose del { color: var(--muted); text-decoration-line: line-through; text-decoration-thickness: 1px; }
 
@@ -680,10 +680,8 @@ p { margin: 0; }
 
 .rules li {
   counter-increment: rule;
-  display: grid;
-  grid-template-columns: 30px minmax(0, 1fr);
-  gap: 8px;
-  padding: 14px 0;
+  position: relative;
+  padding: 14px 0 14px 38px;
   border-bottom: 1px dashed var(--border-soft);
   font-size: 0.94rem;
   color: var(--text-dim);
@@ -692,10 +690,12 @@ p { margin: 0; }
 .rules li:last-child { border-bottom: 0; }
 .rules li::before {
   content: counter(rule, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 16px;
   font-family: var(--mono);
   font-size: 0.74rem;
   color: var(--accent);
-  padding-top: 5px;
 }
 
 .bounds {
@@ -728,6 +728,6 @@ p { margin: 0; }
 }
 
 @media (max-width: 640px) {
-  .rules li { grid-template-columns: 26px minmax(0, 1fr); font-size: 0.9rem; }
+  .rules li { padding-left: 32px; font-size: 0.9rem; }
   .bounds { gap: 14px; }
 }
