@@ -379,6 +379,8 @@ p { margin: 0; }
 }
 .why-quote p:last-child { margin-bottom: 0; }
 
+.why-by { margin-left: 4px; font-size: 0.82em; color: var(--muted); }
+
 .why-crit {
   padding: 18px 20px;
   background: var(--accent-soft);
