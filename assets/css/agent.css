@@ -53,56 +53,10 @@ main,
   letter-spacing: 0.03em;
 }
 
-.papers { list-style: none; margin: 0; padding: 0; counter-reset: paper; }
-
-.papers li {
-  counter-increment: paper;
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
-  gap: 0 14px;
-  padding: 22px 0;
-  border-top: 1px solid var(--border-soft);
-  transition: border-color 0.25s ease;
-}
-.papers li:last-child { border-bottom: 1px solid var(--border-soft); }
-.papers li:hover { border-top-color: var(--accent); }
-
-.papers li::before {
-  content: counter(paper, decimal-leading-zero);
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  color: var(--accent);
-  padding-top: 5px;
-  grid-row: 1 / span 3;
-}
-
-.paper-venue {
-  font-family: var(--mono);
-  font-size: 0.76rem;
-  letter-spacing: 0.02em;
-  color: var(--muted);
-  margin-bottom: 5px;
-}
-
-.paper-title {
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.5;
-  margin-bottom: 6px;
-  color: var(--text);
-}
-
-.paper-note {
-  font-size: 0.9rem;
-  color: var(--muted);
-  line-height: 1.75;
-  max-width: 60em;
-}
+/* Publication cards are styled in style.css; avoid overriding their layout here. */
 
 @media (max-width: 640px) {
   .ocean { opacity: 0.7; }
-  .papers li { grid-template-columns: 1fr; padding: 18px 0; }
-  .papers li::before { grid-row: auto; padding-top: 0; margin-bottom: 4px; }
   .aside-line { font-size: 0.88rem; }
 }
 
