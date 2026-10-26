@@ -20,7 +20,7 @@
   --shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.85);
   --radius: 18px;
   --radius-sm: 10px;
-  --wrap: 1080px;
+  --wrap: 1120px;
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
           "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   --serif: "Iowan Old Style", "Palatino Linotype", Georgia, "Songti SC",
@@ -345,11 +345,11 @@ p { margin: 0; }
 
 .about-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  gap: 56px;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 48px;
 }
 
-.prose p { margin-bottom: 18px; color: var(--text-dim); max-width: 46em; }
+.prose p { margin-bottom: 18px; color: var(--text-dim); max-width: 42em; }
 .prose p:last-child { margin-bottom: 0; }
 .prose del { color: var(--muted); text-decoration-line: line-through; text-decoration-thickness: 1px; }
 
