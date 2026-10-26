@@ -680,6 +680,7 @@ p { margin: 0; }
 
 .rules li {
   counter-increment: rule;
+  display: block;
   position: relative;
   padding: 14px 0 14px 38px;
   border-bottom: 1px dashed var(--border-soft);
