@@ -166,7 +166,7 @@
       var ei = pi * pi * (3 - 2 * pi);
       setDepth(CFG.depthFar + (1 - CFG.depthFar) * ei);        // 深 -> 近
       state.appear = state.fade === false ? 1 : Math.min(1, state.inT / CFG.fadeIn);
-      state.phase += dt * (3.48 - 1.32 * ei);                  // 出场尾鳍拍得快（x1.2）
+      state.phase += dt * (3.48 - 1.32 * ei) * 1.5;            // 游近时尾鳍摆动为此前的 1.5 倍
       if (pi >= 1) {
         state.mode = 'swim';
         state.appear = 1;
@@ -239,7 +239,7 @@
       state.appear = po > 1 - CFG.fadeOut / CFG.outSpan
         ? Math.max(0, (1 - po) / (CFG.fadeOut / CFG.outSpan))
         : 1;
-      state.phase += dt * (2.016 + 1.632 * eo);                // 离场尾鳍再慢 0.8 倍
+      state.phase += dt * (2.016 + 1.632 * eo) * 1.5;          // 游远时尾鳍摆动为此前的 1.5 倍
       if (po >= 1) {
         if (state.willReturn) {
           // 原地掉头，沿同一条视线游回来
