@@ -175,7 +175,6 @@ p { margin: 0; }
 
 .hero-grid {
   display: block;
-  max-width: 44em;
 }
 
 .eyebrow {
@@ -564,7 +563,6 @@ p { margin: 0; }
 
 @media (max-width: 900px) {
   .hero { padding: 56px 0 48px; }
-  .hero-grid { max-width: none; }
   .about-grid { grid-template-columns: 1fr; gap: 34px; }
   .notes a { grid-template-columns: 1fr; gap: 4px; }
   .note-desc { margin-top: 2px; }
